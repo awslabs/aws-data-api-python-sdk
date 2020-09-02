@@ -1,13 +1,11 @@
-import sys
-sys.path.append("lib")
-
-from lib.http_handler import HttpHelper
-from lib.data_api_control_plane import DataApiControlPlane
+from src.lib.http_handler import HttpHelper
+from src.lib.data_api_control_plane import DataApiControlPlane
 import os
 import json
-from exceptions import *
-import parameters as params
+from src.exceptions import *
+import src.parameters as params
 import http
+import logging
 
 __version__ = "0.9.0"
 
@@ -24,9 +22,14 @@ class DataAPIClient:
     _secret_key = None
     _session_token = None
     _control_plane = None
+    _logger = None
 
     def __init__(self, stage: str, region_name: str = None, credentials: dict = None,
-                 service_endpoint: str = None, tls: bool = True):
+                 service_endpoint: str = None, tls: bool = True, log_level: str = 'INFO'):
+
+        logging.basicConfig()
+        self._logger = logging.getLogger("DataAPIClient")
+        self._logger.setLevel(log_level)
 
         self._stage = stage
         if region_name is None:
@@ -53,10 +56,11 @@ class DataAPIClient:
 
         self._http_handler = HttpHelper(host=self._control_plane.get_endpoint(stage), stage=self._stage,
                                         region=self._region_name, access_key=self._access_key,
-                                        secret_key=self._secret_key, session_token=self._session_token)
+                                        secret_key=self._secret_key, session_token=self._session_token,
+                                        custom_domain=self._control_plane.is_custom_domain(stage), logger=self._logger)
 
         print(
-            f"Bound Data API Client in Stage {self._stage} to {self._control_plane.get_endpoint(self._stage)}/{self._stage}")
+            f"Bound Data API Client in Stage {self._stage} to {self._http_handler.get_base_path()}")
 
     def _handle_response(self, response):
         if response.status_code == http.HTTPStatus.CREATED:
@@ -126,30 +130,30 @@ class DataAPIClient:
             params.PITR_ENABLED: pitr_enabled,
             params.KMS_KEY_ARN: kms_key_arn
         }
-        return self._handle_response(self._http_handler.put(data_type=data_type, path="/provision"), put_body=body)
+        return self._handle_response(self._http_handler.put(data_type=data_type, path="provision"), put_body=body)
 
     def get_namespaces(self):
         """ Get all the provisioned namespaces in a given API
         """
         # return GET /namespaces
-        return self._handle_response(self._http_handler.get(data_type=None, path="/namespaces"))
+        return self._handle_response(self._http_handler.get(data_type=None, path="namespaces"))
 
     def get_endpoints(self, data_type: str):
         """ Get all of the available endpoints for the API Type;
         """
         # return GET /endpoints
-        return self._handle_response(self._http_handler.get(data_type=data_type, path="/endpoints"))
+        return self._handle_response(self._http_handler.get(data_type=data_type, path="endpoints"))
 
     def get_info(self, data_type: str):
         """Method to return Namespace Metadata.
         """
         # return GET /info
-        return self._handle_response(self._http_handler.get(data_type=data_type, path="/info"))
+        return self._handle_response(self._http_handler.get(data_type=data_type, path="info"))
 
     def put_info(self, data_type: str, api_metadata: dict):
         """Method to create Namespace Metadata."""
         # return PUT /info
-        return self._handle_response(self._http_handler.put(data_type=data_type, path="/info", put_body=api_metadata))
+        return self._handle_response(self._http_handler.put(data_type=data_type, path="info", put_body=api_metadata))
 
     def list_items(self, data_type: str, page_size: int = None, start_token: str = None, segment: int = None,
                    total_segments: int = None):
@@ -173,26 +177,26 @@ class DataAPIClient:
             args[params.EXCLUSIVE_START_KEY] = start_token
 
         # return GET /list
-        return self._handle_response(self._http_handler.get(data_type=data_type, path="/list", query_params=args))
+        return self._handle_response(self._http_handler.get(data_type=data_type, path="list", query_params=args))
 
     def get_schema(self, data_type: str, schema_type: str):
         """Get the schema for the Namespace's Resources or Metadata.
         """
         # return GET /schema/{schema_type}
-        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"/schema/{schema_type}"))
+        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"schema/{schema_type}"))
 
     def put_schema(self, data_type: str, schema_type: str, json_schema: dict):
         """Create a schema for a Namespace Resources or Metadata.
         """
         # return PUT /schema/{schema_type}
         return self._handle_response(
-            self._http_handler.put(data_type=data_type, path=f"/schema/{schema_type}", put_body=json_schema))
+            self._http_handler.put(data_type=data_type, path=f"schema/{schema_type}", put_body=json_schema))
 
     def delete_schema(self, data_type: str, schema_type: str):
         """Delete the schema from a Namespace Resource or Metadata.
         """
         # return DELETE /schema/{schema_type}
-        return self._handle_response(self._http_handler.delete(data_type=data_type, path=f"/schema/{schema_type}"))
+        return self._handle_response(self._http_handler.delete(data_type=data_type, path=f"schema/{schema_type}"))
 
     def set_item_master(self, data_type: str, item_id: str, item_master_id: str):
         """Link a Resource in the Namespace to an Item Master.
@@ -202,7 +206,7 @@ class DataAPIClient:
             "id": item_id,
             "ItemMasterID": item_master_id
         }
-        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"/ItemMaster", put_body=body))
+        return self._handle_response(self._http_handler.put(data_type=data_type, path="ItemMaster", put_body=body))
 
     def remove_item_master(self, data_type: str, item_id: str, item_master_id: str):
         """Remove an Item Master reference.
@@ -213,7 +217,7 @@ class DataAPIClient:
             "ItemMasterID": item_master_id
         }
         return self._handle_response(
-            self._http_handler.delete(data_type=data_type, path=f"/ItemMaster", delete_body=body))
+            self._http_handler.delete(data_type=data_type, path="ItemMaster", delete_body=body))
 
     def find(self, data_type: str, resource_attributes=None, metadata_attributes=None, start_token: str = None,
              limit: int = None,
@@ -251,12 +255,12 @@ class DataAPIClient:
 
         # return POST /find
         return self._handle_response(
-            self._http_handler.post(data_type=data_type, path="/find", post_body=search_request))
+            self._http_handler.post(data_type=data_type, path="find", post_body=search_request))
 
     def validate_item(self, data_type: str, id: str):
         """Check if an Item exists by ID in the Namespace.
         """
-        return self._handle_response(self._http_handler.head(data_type=data_type, path=f"/{id}"))
+        return self._handle_response(self._http_handler.head(data_type=data_type, path=f"{id}"))
 
     def get_resource(self, data_type: str, id: str, prefer_master: bool = None):
         """Get a Resource from the Namespace.
@@ -265,13 +269,13 @@ class DataAPIClient:
         if prefer_master is not None:
             p = {params.ITEM_MASTER_QP: prefer_master}
 
-        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"/{id}", query_params=p))
+        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{id}", query_params=p))
 
     def get_metadata(self, data_type: str, id: str):
         """Get Metadata for an Item in the Namespace.
         """
         # return GET /id/meta
-        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"/{id}/meta"))
+        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{id}/meta"))
 
     def delete_resource(self, data_type: str, id: str, delete_mode: str = None):
         """Delete an item from the Namespace based upon admin config (tombstone or soft delete).
@@ -280,19 +284,19 @@ class DataAPIClient:
         body = {}
         if delete_mode is not None:
             body[params.DELETE_MODE] = delete_mode
-        return self._handle_response(self._http_handler.delete(data_type=data_type, path=f"/{id}", delete_body=body))
+        return self._handle_response(self._http_handler.delete(data_type=data_type, path=f"{id}", delete_body=body))
 
     def delete_metadata(self, data_type: str, id: str):
         """Delete Metadata for an Item from the Namespace.
         """
         return self._handle_response(
-            self._http_handler.delete(data_type=data_type, path=f"/{id}", delete_body={"Metadata": {}}))
+            self._http_handler.delete(data_type=data_type, path=f"{id}", delete_body={"Metadata": {}}))
 
     def restore_item(self, data_type: str, id: str):
         """Restore a deleted Item in the Namespace (only supported after Soft Delete).
         """
         # return PUT /restore
-        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"/{id}/restore"))
+        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"{id}/restore"))
 
     def delete_attributes(self, data_type: str, id: str, resource_attributes=None, metadata_attributes=None):
         """Delete attributes from a Resource or Metadata.
@@ -313,11 +317,11 @@ class DataAPIClient:
             delete["Metadata"] = metadata_attributes
 
         # return DELETE /{id}
-        return self._handle_response(self._http_handler.delete(data_type=data_type, path=f"/{id}", delete_body=delete))
+        return self._handle_response(self._http_handler.delete(data_type=data_type, path=f"{id}", delete_body=delete))
 
     # private method to perform a put body with the correct path
     def _item_write(self, data_type: str, id: str, body: dict):
-        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"/{id}", put_body=body))
+        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"{id}", put_body=body))
 
     # put a full item that is well formed by the client
     def _put_item(self, data_type: str, id: str, item: dict, item_version: int = None, strict_schema: bool = None):
@@ -387,7 +391,7 @@ class DataAPIClient:
             d = "downstream"
 
         # return GET /upstream or /downstream
-        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"/{id}/{d}", query_params=p))
+        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{id}/{d}", query_params=p))
 
     def start_export(self, data_type: str, export_job_dpu: int, read_pct: int, s3_export_path: str, log_path: str,
                      setup_crawler: bool = True, kms_key_arn: str = None,
@@ -403,7 +407,7 @@ class DataAPIClient:
             params.KMS_KEY_ARN: kms_key_arn,
             params.CATALOG_DATABASE: catalog_database
         }
-        return self._handle_response(self._http_handler.post(data_type=data_type, path="/export", post_body=body))
+        return self._handle_response(self._http_handler.post(data_type=data_type, path="export", post_body=body))
 
     def get_export_status(self, data_type: str, job_name: str, job_run_id: str = None):
         """Get the status of an Export Job.
@@ -413,10 +417,10 @@ class DataAPIClient:
         if job_run_id is not None:
             qp["JobRunId"] = job_run_id
 
-        return self._handle_response(self._http_handler.get(data_type=data_type, path="/export", query_params=qp))
+        return self._handle_response(self._http_handler.get(data_type=data_type, path="export", query_params=qp))
 
     def understand(self, data_type: str, id: str, storage_location_attribute: str):
         """Run an AI powered Metadata resolver against a Resource.
         """
-        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"/{id}/understand", put_body={
+        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"{id}/understand", put_body={
             params.STORAGE_LOCATION_ATTRIBUTE: storage_location_attribute}))

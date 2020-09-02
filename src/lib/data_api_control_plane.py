@@ -1,7 +1,9 @@
 import boto3
 import json
 import os
-from lib.http_handler import HttpHelper
+from src.lib.http_handler import HttpHelper
+from datetime import datetime
+import logging
 
 
 class DataApiControlPlane:
@@ -21,6 +23,14 @@ class DataApiControlPlane:
             file_dir = os.path.dirname(__file__)
             with open(f"{file_dir}/endpoints.json", 'r') as f:
                 self._base_uris = json.load(f)
+
+    def is_custom_domain(self, stage):
+        stage_info = self._base_uris.get(stage)
+
+        if stage_info.get('URL') is not None:
+            return True
+        else:
+            return False
 
     def connect(self, from_url: str, access_key: str, secret_key: str, session_token: str = None,
                 force_refresh: bool = False):
@@ -42,12 +52,15 @@ class DataApiControlPlane:
 
         if not os.path.exists(filepath) or force_refresh:
             url_tokens = from_url.split("/")
+
             # create an http handler just for the bootstrap request
             http_handler = HttpHelper(host="/".join(url_tokens[:-1]), stage=url_tokens[len(url_tokens) - 1],
                                       region=self._region_name, access_key=_access_key,
                                       secret_key=_secret_key, session_token=_session_token)
             endpoints = http_handler.get(data_type=None, path="data-apis").json()
+
             if endpoints is not None and endpoints.get("message") is None:
+                endpoints["RefreshDate"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 # write the endpoint config to endpoints.json.del
                 with open(filepath, 'w+') as f:
                     json.dump(endpoints, f, sort_keys=True, indent=4)
@@ -59,7 +72,12 @@ class DataApiControlPlane:
 
     def _get_stage_addr(self, stage):
         if stage in self._base_uris:
-            return self._base_uris.get(stage)
+            stage_info = self._base_uris.get(stage)
+
+            if "URL" in stage_info:
+                return stage_info.get('URL')
+            else:
+                return stage_info.get('Endpoint')
         else:
             return None
 

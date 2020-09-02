@@ -3,16 +3,20 @@ import os
 import unittest
 import shortuuid
 import json
-import parameters as params
-from lib.data_api_control_plane import DataApiControlPlane
-from exceptions import *
-from data_api_client import DataAPIClient
+
+sys.path.append("..")
+parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.sys.path.insert(0, parentdir)
+
+import src.parameters as params
+from src.lib.data_api_control_plane import DataApiControlPlane
+from src.exceptions import *
+from src.data_api_client import DataAPIClient
 
 data_type = "MyItem"
 _item_id = "1234567890"
 _master_id = "9999999999"
-
-sys.path.append("..")
+_log_level = 'INFO'
 
 
 class DataAPIClientTest(unittest.TestCase):
@@ -51,7 +55,7 @@ class DataAPIClientTest(unittest.TestCase):
                               force_refresh=True)
 
         # create an API client in Dev stage
-        cls.client = DataAPIClient(stage="test", region_name=region)
+        cls.client = DataAPIClient(stage="dev", region_name=region, log_level=_log_level)
 
     @classmethod
     def tearDownClass(cls):
@@ -83,7 +87,6 @@ class DataAPIClientTest(unittest.TestCase):
     def test_namespaces(self):
         namespaces = self.client.get_namespaces()
         self.assertIsNotNone(namespaces)
-
 
     def test_delete_attributes(self):
         d = "DataModified"
