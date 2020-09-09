@@ -14,7 +14,7 @@ pip install aws-data-api-python-sdk --user
 
 which will install:
 
-* `botocore`: The core of the AWS Python SDK, which is used for automating [credential](PythonClientCredentials) management.
+* `boto3`: The AWS Python SDK which is used for automating credential management.
 * `requests-aws4auth`: Helper module that performs sigv4 signing of the requests you make to AWS Data API's
 * `shortuuid`: Helper module to generate short, unique addresses
 
@@ -101,7 +101,7 @@ These are the internal GUID addresses per-stage that your client will connect to
 
 ## Creating a Client
 
-For most applications, you only have to connect to the Data API once, after which time the endpoint information is cached (in `<client install location>/lib/endpoints.json`). Once the client environment is linked to your Endpoints, you can create a Client for the required Region and Stage:
+Once the client environment is linked to your Endpoints, you can create a Client for the required Region and Stage:
 
 ```
 my_client = DataAPIClient(
@@ -126,6 +126,6 @@ my_client = DataAPIClient(
 
 ## Calling Client Methods
 
-You can call any of the [client methods](PythonClientCallingMethods) directly, without considering authentication & authorisation, or HTTP.
+You can call any of the [client methods](PythonClientCallingMethods) directly, without considering authentication & authorisation, or HTTP methods and paths.
 
 
