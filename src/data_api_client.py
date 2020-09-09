@@ -8,7 +8,7 @@ import src.lib.utils as utils
 import http
 import logging
 
-__version__ = "0.9.0"
+__version__ = "0.9.0b1"
 
 
 class DataAPIClient:

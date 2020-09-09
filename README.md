@@ -27,7 +27,7 @@ Python 3.7.4 (default, Sep  7 2019, 18:27:02)
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import data_api_client as d
 >>> print(d.__version__)
-0.9.0
+0.9.0b1
 ```
 
 ## Setting Up Credentials
