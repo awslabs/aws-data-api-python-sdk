@@ -30,35 +30,35 @@ cls.client = DataAPIClient(stage="test", region_name=region)
 ```
 these are the available methods:
 
-* [`delete_attributes()`](###delete_attributes)
-* [`delete_metadata()`](###delete_metadata)
-* [`delete_resource()`](###delete_resource)
-* [`delete_schema()`](###delete_schema)
-* [`find()`](###find)
-* [`get_endpoints()`](###get_endpoints)
-* [`get_export_status()`](###get_export_status)
-* [`get_info()`](###get_info)
-* [`get_metadata()`](###get_metadata)
-* [`get_namespaces()`](###get_namespaces)
-* [`get_resource()`](###get_resource)
-* [`get_schema()`](###get_schema)
-* [`lineage_search()`](###lineage_search)
-* [`list_items()`](###list_items)
-* [`provision()`](###provision)
-* [`put_info()`](###put_info)
-* [`put_metadata()`](###put_metadata)
-* [`put_references()`](###put_references)
-* [`put_resource()`](###put_resource)
-* [`put_schema()`](###put_schema)
-* [`remove_item_master()`](###remove_item_master)
-* [`restore_item()`](###restore_item)
-* [`set_item_master()`](###set_item_master)
-* [`start_export()`](###start_export)
-* [`understand()`](###understand)
-* [`validate_item()`](###validate_item)
+* [`delete_attributes()`](#delete_attributes)
+* [`delete_metadata()`](#delete_metadata)
+* [`delete_resource()`](#delete_resource)
+* [`delete_schema()`](#delete_schema)
+* [`find()`](#find)
+* [`get_endpoints()`](#get_endpoints)
+* [`get_export_status()`](#get_export_status)
+* [`get_info()`](#get_info)
+* [`get_metadata()`](#get_metadata)
+* [`get_namespaces()`](#get_namespaces)
+* [`get_resource()`](#get_resource)
+* [`get_schema()`](#get_schema)
+* [`lineage_search()`](#lineage_search)
+* [`list_items()`](#list_items)
+* [`provision()`](#provision)
+* [`put_info()`](#put_info)
+* [`put_metadata()`](#put_metadata)
+* [`put_references()`](#put_references)
+* [`put_resource()`](#put_resource)
+* [`put_schema()`](#put_schema)
+* [`remove_item_master()`](#remove_item_master)
+* [`restore_item()`](#restore_item)
+* [`set_item_master()`](#set_item_master)
+* [`start_export()`](#start_export)
+* [`understand()`](#understand)
+* [`validate_item()`](#validate_item)
 
 ---- 
-### delete_attributes(**kwargs)
+### delete_attributes
 
 Method that enables you to delete specific Attributes from a Resource or Metadata item.
 
@@ -100,7 +100,7 @@ dict
 	* `DataModified` - Boolean indicator of if the Attributes were deleted
 
 ---- 
-### delete_metadata(**kwargs)
+### delete_metadata
 
 Method that deletes Metadata for an Item.
 
@@ -138,7 +138,7 @@ dict
 	* `DataModified` - Boolean indicator of if the Attributes were deleted
 
 ---- 
-### delete_resource(**kwargs)
+### delete_resource
 
 Deletes a Resource and it's associated Metadata.
 
@@ -178,7 +178,7 @@ dict
 	* `DataModified` - Boolean indicator of if the Attributes were deleted
 	
 ---- 
-### delete_schema(**kwargs)
+### delete_schema
 
 Removes the Schema for Resources or Metadata from a Namespace (requires elevated privileges).
 
@@ -217,7 +217,7 @@ dict
 
 
 ---- 
-### find(**kwargs)
+### find
 
 Performs a search for an Item based upon Attribute values provided.
 
@@ -282,7 +282,7 @@ dict
 	* `LastEvaluatedKey` (string) - String value that was the last evaluated by the search before the 'limit' was reached.
 
 ---- 
-### get_endpoints(**kwargs)
+### get_endpoints
 
 Returns the endpoint addresses of the resources used by a namespace. This includes the Resource and Metadata stream addresses, and the ElasticSearch and Neptune configurations if they have been provisioned.
 
@@ -324,7 +324,7 @@ dict
 * `Elasticsearch` (string) - The URL of the configured Elasticsearch cluster, if provisioned and used for enhanced search.
 
 ---- 
-### get\_export\_status(**kwargs)
+### get\_export\_status
 
 Returns the status of a data export job (export to S3).
 
@@ -353,7 +353,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### get_info(**kwargs)
+### get_info
 
 #### Request Syntax
 
@@ -368,7 +368,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### get_metadata(**kwargs)
+### get_metadata
 
 #### Request Syntax
 
@@ -383,7 +383,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### get_namespaces(**kwargs)
+### get_namespaces
 
 #### Request Syntax
 
@@ -398,7 +398,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### get_resource(**kwargs)
+### get_resource
 
 #### Request Syntax
 
@@ -413,7 +413,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### get_schema(**kwargs)
+### get_schema
 
 #### Request Syntax
 
@@ -428,7 +428,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### lineage_search(**kwargs)
+### lineage_search
 
 #### Request Syntax
 
@@ -443,7 +443,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### list_items(**kwargs)
+### list_items
 
 #### Request Syntax
 
@@ -458,7 +458,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### provision(**kwargs)
+### provision
 
 #### Request Syntax
 
@@ -473,7 +473,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### put_info(**kwargs)
+### put_info
 
 #### Request Syntax
 
@@ -488,7 +488,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### put_metadata(**kwargs)
+### put_metadata
 
 #### Request Syntax
 
@@ -503,7 +503,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### put_references(**kwargs)
+### put_references
 
 #### Request Syntax
 
@@ -518,7 +518,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### put_resource(**kwargs)
+### put_resource
 
 #### Request Syntax
 
@@ -533,7 +533,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### put_schema(**kwargs)
+### put_schema
 
 #### Request Syntax
 
@@ -548,7 +548,7 @@ response = client.get_export_status(
 ##### Response Structure
 
 ---- 
-### remove\_item\_master(**kwargs)
+### remove\_item\_master
 
 #### Request Syntax
 
