@@ -126,6 +126,6 @@ my_client = DataAPIClient(
 
 ## Calling Client Methods
 
-You can call any of the [client methods](CallingMethods) directly, without considering authentication & authorisation, or HTTP methods and paths.
+You can call any of the [client methods](CallingMethods.md) directly, without considering authentication & authorisation, or HTTP methods and paths.
 
 
