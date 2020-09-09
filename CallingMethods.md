@@ -12,7 +12,7 @@ Class representing a connection to a Data API Stage.
 from lib.data_api_control_plane import DataApiControlPlane
 from data_api_client import DataAPIClient
 
-# get the region from the environment - connecting locally
+# get the region from the environment
 region = os.getenv("AWS_REGION")
 
 # create a control plane reference
@@ -21,7 +21,8 @@ control_plane = DataApiControlPlane(tls=True, region_name=region)
 # One time setup of the endpoint cache
 control_plane.connect(from_url=endpoint,
                       access_key=access_key,
-                      secret_key=secret_key, session_token=session_token,
+                      secret_key=secret_key, 
+                      session_token=session_token,
                   	  force_refresh=True)
 
 # create an API client in Dev stage

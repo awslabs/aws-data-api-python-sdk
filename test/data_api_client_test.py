@@ -51,7 +51,8 @@ class DataAPIClientTest(unittest.TestCase):
 
         control_plane.connect(from_url=endpoint,
                               access_key=access_key,
-                              secret_key=secret_key, session_token=session_token,
+                              secret_key=secret_key,
+                              session_token=session_token,
                               force_refresh=True)
 
         # create an API client in Dev stage
