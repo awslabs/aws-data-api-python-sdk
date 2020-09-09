@@ -1,6 +1,6 @@
 # AWS Data API - Python SDK
 
-This project contains a python SDK for [AWS Data API's](https://github.com/IanMeyers/aws-data-api). Data API's give you the ability to create a new back end web service to handle core business data, without any coding or servers to manage. The Python SDK gives you a client that can create and interact with Data API's using a model similar to the AWS [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) Python SDK.
+This project contains a python SDK for [AWS Data API's](https://github.com/awslabs/aws-data-api). Data API's give you the ability to create a new back end web service to handle core business data, without any coding or servers to manage. The Python SDK gives you a client that can create and interact with Data API's using a model similar to the AWS [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) Python SDK.
 
 AWS Data API's use URL Paths and HTTP Verbs to implement underlying actions against your data - for example `HTTP GET` for reads, or `HTTP PUT` for writes. However, the Python SDK provides more user friendly methods - such as `get_item()` or `put_metadata()`.
 
@@ -126,6 +126,6 @@ my_client = DataAPIClient(
 
 ## Calling Client Methods
 
-You can call any of the [client methods](PythonClientCallingMethods) directly, without considering authentication & authorisation, or HTTP methods and paths.
+You can call any of the [client methods](CallingMethods) directly, without considering authentication & authorisation, or HTTP methods and paths.
 
 
