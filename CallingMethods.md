@@ -377,7 +377,7 @@ dict
 ---- 
 ### get_info
 
-Returns Metadata about an API Namespace.
+Returns Metadata about an API Namespace. View all available Namespaces in the Stage with the [get_namespaces()](#get_namespaces) method.
 
 #### Request Syntax
 
@@ -389,13 +389,138 @@ response = client.get_info(
 
 #### Parameters
 
+* `data_type`: str - The Data Type/Namespace for which you wish to return Metadata
+
 #### Return Type
+
+dict
 
 #### Returns
 
 ##### Response Syntax
 
+```json
+{
+    "AllowRuntimeDeleteModeChange": bool,
+    "CatalogDatabase": str,
+    "CrawlerRolename": str,
+    "DataType": str,
+    "DeleteMode": str,
+    "DeployedAccount": str,
+    "GremlinAddress": str,
+    "LastUpdateAction": str,
+    "LastUpdateDate": datetime,
+    "LastUpdatedBy": str,
+    "ResourceIndexes": struct,
+    "MetadataIndexes": struct,
+    "NonItemMasterWritesAllowed": bool,
+    "PrimaryKey": str,
+    "Resources": [
+        {
+            "name": "EsIndexer_role",
+            "resource_type": "iam_role",
+            "role_arn": str,
+            "role_name": "AwsDataAPI-MyItem-dev-EsIndexer"
+        },
+        {
+            "lambda_arn": str,
+            "name": "EsIndexer",
+            "resource_type": "lambda_function"
+        },
+        {
+            "name": "api_handler_role",
+            "resource_type": "iam_role",
+            "role_arn": str,
+            "role_name": "AwsDataAPI-MyItem-dev-api_handler"
+        },
+        {
+            "lambda_arn": str,
+            "name": "api_handler",
+            "resource_type": "lambda_function"
+        },
+        {
+            "name": "rest_api",
+            "resource_type": "rest_api",
+            "rest_api_id": str,
+            "rest_api_url": str
+        }
+    ],
+    "SearchConfig": {
+        "DeliveryStreams": {
+            "Metadata": {
+                "DestinationDeliveryStreamARN": str,
+                "SourceStreamARN": str
+            },
+            "Resource": {
+                "DestinationDeliveryStreamARN": str,
+                "SourceStreamARN": str
+            }
+        },
+        "ElasticSearchDomain": {
+            "ARN": str,
+            "DomainId": str,
+            "ElasticSearchEndpoint": str
+        }
+    },
+    "SearchSetup": {
+        "ElasticSearchDomain": str,
+        "FailedSearchIndexRecordBucket": str,
+        "FirehoseDeliveryIamRoleARN": str
+    },
+    "Stage": str,
+    "StorageHandler": str,
+    "StorageTable": str,
+    "StrictOCCV": str,
+    "api": str,
+    "region": str,
+    "type": "ApiMetadata"
+}
+```
+
 ##### Response Structure
+
+* `AllowRuntimeDeleteModeChange`: bool - Administrator setting indicating whether the Deletes can dynamically be switched between `soft` and `tombstone`. If False, then only the `DeleteMode` is applied to Item delete requests
+* `CatalogDatabase`: str - The name of the Glue Catalog database which contains references to Data API data
+* `CrawlerRolename`: str - The name of the Glue Crawler used to determine Object schema for this Namespace
+* `DataType`: str - The name and stage that uniquely identifies this Namespace
+* `DeleteMode`: str - Configuration value dictating how deletes are handled. `soft` deletes support restore operations, while `tombstone` deletes are permanent.
+* `DeployedAccount`: str - The Account ID in which this Data API is installed
+* `GremlinAddress`: str - If Data Lineage & Reference tracking is enabled, the address of the Graph Database that contains the lineage store
+* `ResourceIndexes`: struct - Name of Resource Attributes, and their data types, which are indexed by the Data API
+* `MetadataIndexes`: struct - Name of Metadata Attributes, and their data types, which are indexed by the Data API
+* `NonItemMasterWritesAllowed`: bool - Configuration value that determines whether updates are allowed on Items that have an ItemMaster link created.
+* `PrimaryKey`: str - Attribute Name of the primary key for the Resource
+* `Resources`: list - List of objects provisioned automatically for the Data API in this account
+	* `name`: str - Name of the Resource
+	* `resource_type`: (`iam_role` | `lambda_function` | `rest_api`) - The type of the resource provisioned
+	* `role_arn`: str - If an `iam_role`, the ARN of the Role
+	* `role_name`: str - If an `iam_role`, the Name of the Role
+	* `lambda_arn`: str - If a `lambda_function`, the ARN of the deployed function
+	* `rest_api_id`: str - If a `rest_api`, the ID of the API Gateway
+	* `rest_api_url`: str - If a `rest_api`, the URL of the API gateway (does not include custom domain information)
+* `SearchConfig`: dict - Provisioned Search Integration Information
+	* `DeliveryStreams`: dict - Information about the provisioned Delivery Streams for DynamoDB and Kinesis Firehose
+		* `Metadata`: dict - Information about delivery of Metadata to ElasticSearch
+			* `DestinationDeliveryStreamARN`: str - Firehose Delivery Stream ARN for Metadata
+			* `SourceStreamARN`: str - DynamoDB Stream ARN for Metadata
+		* `Resource`: dict - Information about delivery of Resources to ElasticSearch
+			* `DestinationDeliveryStreamARN`: str - Firehose Delivery Stream ARN for Resources
+			* `SourceStreamARN`: str - DynamoDB Stream ARN for Resources
+	* `ElasticSearchDomain`: dict - The configured ElasticSearch Domain
+		* `ARN`: str - ARN of the ElasticSearch Service Domain
+		* `DomainId`: str - Domain ID for the ElasticSearch Service
+		* `ElasticSearchEndpoint`: str - Endpoint Address for ElasticSearch
+* `SearchSetup`: dict - Configuration information supplied by Administrator for Search Integration
+	* `ElasticSearchDomain`: str - Name of the ElasticSearch Domain to be used for Indexing
+	* `FailedSearchIndexRecordBucket`: str - S3 Bucket to be used for failed indexing records
+	* `FirehoseDeliveryIamRoleARN`: str - IAM Role ARN that contains permissions for Lambda to write to Kinesis Firehose, and Firehose to write to ElasticSearch
+* `Stage`: str - The Stage for this Namespace
+* `StorageHandler`: str - The back end storage integration class. Today only supports `dynamo_storage_handler`.
+* `StorageTable`: str - The table in DynamoDB used to store Resource data
+* `StrictOCCV`: str - Configuration indicating whether Strict Optimistic Concurrency Control is in use
+* `api`: str - The name of the API
+* `region`: str - The AWS Region in which this API is deployed
+* `type`: "ApiMetadata"
 
 ---- 
 ### get_metadata
