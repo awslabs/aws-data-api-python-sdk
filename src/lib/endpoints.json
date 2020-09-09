@@ -1,5 +1,5 @@
 {
-    "RefreshDate": "2020-09-02 12:32:13",
+    "RefreshDate": "2020-09-09 11:45:26",
     "dev": {
         "DistributionDomainName": "dbfje2qy9pn4z.cloudfront.net",
         "Endpoint": "https://sdma0i6rek.execute-api.eu-west-1.amazonaws.com",
@@ -7,7 +7,7 @@
         "URL": "https://meyersi.sa.aws.dev"
     },
     "test": {
-        "Endpoint": "https://txcoxv32dh.execute-api.eu-west-1.amazonaws.com",
+        "Endpoint": "https://cwpdqi6ami.execute-api.eu-west-1.amazonaws.com",
         "Stage": "test"
     }
 }

@@ -1,9 +1,8 @@
-import boto3
 import json
 import os
 from src.lib.http_handler import HttpHelper
 from datetime import datetime
-import logging
+import src.lib.utils as utils
 
 
 class DataApiControlPlane:
@@ -32,20 +31,18 @@ class DataApiControlPlane:
         else:
             return False
 
-    def connect(self, from_url: str, access_key: str, secret_key: str, session_token: str = None,
+    def connect(self, from_url: str, access_key: str = None, secret_key: str = None, session_token: str = None,
                 force_refresh: bool = False):
         _access_key = access_key
         _secret_key = secret_key
         _session_token = session_token
 
-        # support boto3 based configuration of credentials if they aren't provided
         if access_key is None and secret_key is None:
-            session = boto3.session.Session()
-            credentials = session.get_credentials().get_frozen_credentials()
+            # use helper module to resolve credentials
+            credentials = utils.get_credentials()
             _access_key = credentials.access_key
             _secret_key = credentials.secret_key
-            if session.get_credentials().token is not None:
-                _session_token = session.get_credentials().token
+            _session_token = credentials.session_token
 
         file_dir = os.path.dirname(__file__)
         filepath = f"{file_dir}/endpoints.json"

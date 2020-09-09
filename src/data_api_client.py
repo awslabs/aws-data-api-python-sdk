@@ -4,6 +4,7 @@ import os
 import json
 from src.exceptions import *
 import src.parameters as params
+import src.lib.utils as utils
 import http
 import logging
 
@@ -24,9 +25,8 @@ class DataAPIClient:
     _control_plane = None
     _logger = None
 
-    def __init__(self, stage: str, region_name: str = None, credentials: dict = None,
-                 service_endpoint: str = None, tls: bool = True, log_level: str = 'INFO'):
-
+    def __init__(self, stage: str, region_name: str = None, access_key: str = None, secret_key: str = None,
+                 session_token: str = None, service_endpoint: str = None, tls: bool = True, log_level: str = 'INFO'):
         logging.basicConfig()
         self._logger = logging.getLogger("DataAPIClient")
         self._logger.setLevel(log_level)
@@ -37,19 +37,17 @@ class DataAPIClient:
         else:
             self._region_name = region_name
 
-        if credentials is not None:
-            if 'Credentials' in credentials:
-                c = credentials.get('Credentials')
-            else:
-                c = credentials
-
-            self._access_key = c['AccessKeyId'],
-            self._secret_key = c['SecretAccessKey'],
-            self._session_token = c['SessionToken'],
+        # resolve credentials
+        if access_key is None and secret_key is None:
+            # use helper module to resolve credentials
+            credentials = utils.get_credentials()
+            self._access_key = credentials.access_key
+            self._secret_key = credentials.secret_key
+            self._session_token = credentials.session_token
         else:
-            self._access_key = os.getenv("aws_access_key_id")
-            self._secret_key = os.getenv("aws_secret_access_key")
-            self._session_token = os.getenv("aws_session_token")
+            self._access_key = access_key
+            self._secret_key = secret_key
+            self._session_token = session_token
 
         self._control_plane = DataApiControlPlane(tls=tls, region_name=self._region_name,
                                                   override_url=service_endpoint)
