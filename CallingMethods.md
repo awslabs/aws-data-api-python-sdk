@@ -64,7 +64,7 @@ Method that enables you to delete specific Attributes from a Resource or Metadat
 
 #### Request Syntax
 
-```
+```python
 response = client.delete_attributes(
 	data_type: str, 
 	id: str, 
@@ -106,7 +106,7 @@ Method that deletes Metadata for an Item.
 
 #### Request Syntax
 
-```
+```python
 response = client.delete_metadata(
 	data_type: str, 
 	id: str
@@ -144,7 +144,7 @@ Deletes a Resource and it's associated Metadata.
 
 #### Request Syntax
 
-```
+```python
 response = client.delete_resource(
 data_type: str, 
 id: str, 
@@ -184,7 +184,7 @@ Removes the Schema for Resources or Metadata from a Namespace (requires elevated
 
 #### Request Syntax
 
-```
+```python
 response = client.delete_schema(
 	data_type: str, 
 	schema_type: str
@@ -223,7 +223,7 @@ Performs a search for an Item based upon Attribute values provided.
 
 #### Request Syntax
 
-```
+```python
 response = client.find(
 	data_type: str, 
 	resource_attributes=None, 
@@ -288,7 +288,7 @@ Returns the endpoint addresses of the resources used by a namespace. This includ
 
 #### Request Syntax
 
-```
+```python
 response = client.get_endpoints(
 	data_type: str
 )
@@ -330,7 +330,7 @@ Returns the status of a data export job (export to S3).
 
 #### Request Syntax
 
-```
+```python
 response = client.get_export_status(
 	data_type: str, 
 	job_name: str, 
@@ -346,16 +346,46 @@ response = client.get_export_status(
 
 #### Return Type
 
+dict
+
 #### Returns
 
 ##### Response Syntax
 
+```json
+{Job ID: {
+	"Status": str,
+	"Started": datetime,
+	"ExecutedDuration": int,
+	"Completed": datetime,
+	"ErrorMessage": str,
+	"Arguments": dict
+	}
+}
+```
+
 ##### Response Structure
+
+* `Job ID` - The ID of the Glue job used to export data to S3
+	* `Status` - The status of the export job. One of `'STARTING'|'RUNNING'|'STOPPING'|'STOPPED'|'SUCCEEDED'|'FAILED'|'TIMEOUT'`
+	* `Started` - The date and time that the job started (format `%Y-%m-%d %H:%M:%S`)
+	* `ExecutedDuration` - The amount of time, in seconds, that the job ran
+	* `Completed` - The date and time that the job completed  (format `%Y-%m-%d %H:%M:%S`)
+	* `ErrorMessage` - Any error message that was encountered during the export. Optional.
+	* `Arguments` - Dictionary of arguments passed to the export job
 
 ---- 
 ### get_info
 
+Returns Metadata about an API Namespace.
+
 #### Request Syntax
+
+```python
+response = client.get_info(
+	data_type: str
+)
+```
 
 #### Parameters
 
@@ -372,6 +402,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -379,6 +415,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -387,6 +429,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -394,6 +442,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -402,6 +456,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -409,6 +469,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -417,6 +483,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -424,6 +496,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -432,6 +510,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -439,6 +523,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -447,6 +537,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -454,6 +550,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -462,6 +564,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -469,6 +577,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -477,6 +591,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -484,6 +604,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -492,6 +618,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -499,6 +631,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -507,6 +645,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -514,6 +658,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -522,6 +672,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -529,6 +685,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -537,6 +699,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -544,6 +712,12 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
@@ -552,6 +726,12 @@ response = client.get_export_status(
 
 #### Request Syntax
 
+```python
+response = client.<>(
+	<>: str
+)
+```
+
 #### Parameters
 
 #### Return Type
@@ -559,13 +739,25 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
 ---- 
-### restore_item(**kwargs)
+### restore_item
 
 #### Request Syntax
+
+```python
+response = client.<>(
+	<>: str
+)
+```
 
 #### Parameters
 
@@ -574,13 +766,25 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
 ---- 
-### set\_item\_master(**kwargs)
+### set\_item\_master
 
 #### Request Syntax
+
+```python
+response = client.<>(
+	<>: str
+)
+```
 
 #### Parameters
 
@@ -589,13 +793,25 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
 ---- 
-### start_export(**kwargs)
+### start_export
 
 #### Request Syntax
+
+```python
+response = client.<>(
+	<>: str
+)
+```
 
 #### Parameters
 
@@ -604,13 +820,25 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
 ---- 
-### understand(**kwargs)
+### understand
 
 #### Request Syntax
+
+```python
+response = client.<>(
+	<>: str
+)
+```
 
 #### Parameters
 
@@ -619,13 +847,25 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
 
 ---- 
-### validate_item(**kwargs)
+### validate_item
 
 #### Request Syntax
+
+```python
+response = client.<>(
+	<>: str
+)
+```
 
 #### Parameters
 
@@ -634,5 +874,11 @@ response = client.get_export_status(
 #### Returns
 
 ##### Response Syntax
+
+```json
+{
+
+}
+```
 
 ##### Response Structure
