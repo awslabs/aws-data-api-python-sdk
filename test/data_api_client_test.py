@@ -159,6 +159,13 @@ class DataAPIClientTest(unittest.TestCase):
 
         n = 10
 
+        # find with index
+        _id = "value1-1088"
+        results = self.client.find(data_type=data_type, resource_attributes={"attr1": _id})
+        self.assertIsNotNone(results)
+        self.assertEqual(len(results.get("Items")), 1)
+        self.assertEqual(results.get("Items")[0].get("attr1"), _id)
+
         # find with limit
         results = self.client.find(data_type=data_type, resource_attributes={"attr3": self.uuid}, limit=n)
         self.assertIsNotNone(results)
@@ -168,6 +175,12 @@ class DataAPIClientTest(unittest.TestCase):
         results = self.client.find(data_type=data_type, metadata_attributes={"CostCenter": "7003"}, limit=n)
         self.assertIsNotNone(results)
         self.assertEqual(len(results.get("Items")), n)
+
+        # find with secondary filter applied
+        results = self.client.find(data_type=data_type, metadata_attributes={"CostCenter": "7003", "id": "1680-meta"},
+                                   limit=n)
+        self.assertIsNotNone(results)
+        self.assertEqual(len(results.get("Items")), 1)
 
     def test_get_endpoints(self):
         endpoints = self.client.get_endpoints(data_type=data_type)
