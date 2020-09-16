@@ -10,7 +10,6 @@ import logging
 
 __version__ = "0.9.0b1"
 
-
 class DataAPIClient:
     """AWS Data API Client.
     """
@@ -24,6 +23,9 @@ class DataAPIClient:
     _session_token = None
     _control_plane = None
     _logger = None
+
+    SEARCH_UPSTREAM = 'UP'
+    SEARCH_DOWNSTREAM = 'DOWN'
 
     def __init__(self, stage: str, region_name: str = None, access_key: str = None, secret_key: str = None,
                  session_token: str = None, service_endpoint: str = None, tls: bool = True, log_level: str = 'INFO'):
@@ -383,7 +385,7 @@ class DataAPIClient:
             else:
                 p = {"search_depth": max_depth}
 
-        if direction.upper() == 'UP':
+        if direction.upper() == SEARCH_UPSTREAM:
             d = "upstream"
         else:
             d = "downstream"

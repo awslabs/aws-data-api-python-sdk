@@ -633,29 +633,57 @@ response = client.<>(
 ---- 
 ### lineage_search
 
+Performs a search on data References using a graph traversal. Depth indicates the number of levels of hierarchy and references to be traversed.
+
 #### Request Syntax
 
 ```python
-response = client.<>(
-	<>: str
+response = client.lineage_search(
+	data_type: str, 
+	id: str, 
+	direction: str, 
+	max_depth: int = None
 )
 ```
 
 #### Parameters
 
+* `data_type` - The Data Type to perform a lineage search on
+* `id` - The Primary Key of the Item you wish to search for References from
+* `direction` - Enum indicating the direction of search. `UP`/`DataAPIClient.SEARCH_UPSTREAM` for an upstream search (objects that reference the indicated ID), or `DOWN`/`DataAPIClient.SEARCH_DOWNSTREAM` for a downstream search (objects that the indicated ID references)
+* `max_depth` - Depth of the search in generations of References
+
 #### Return Type
+
+List
 
 #### Returns
 
 ##### Response Syntax
 
 ```json
-{
-
-}
+[
+    {
+        "AdditionalProperties": {
+            "date": datetime
+        },
+        "Label": "References",
+        "TypeStage": str,
+        "id": str
+    }
+]
 ```
 
 ##### Response Structure
+
+* List of References
+	* Reference
+		* `AdditionalProperties` - Dict containing properties attached to the reference
+			* `date` - the DateTime that the Reference was created
+			* ...
+		* `Label` - The type of Reference - defaults to 'References'
+		* `TypeStage` - the Namespace and Stage of the Resource which this Reference points to
+		* `id` - The Resource ARN of the Item referenced
 
 ---- 
 ### list_items
