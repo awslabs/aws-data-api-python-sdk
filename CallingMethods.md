@@ -19,11 +19,13 @@ region = os.getenv("AWS_REGION")
 control_plane = DataApiControlPlane(tls=True, region_name=region)
 
 # One time setup of the endpoint cache
-control_plane.connect(from_url=endpoint,
-                      access_key=access_key,
-                      secret_key=secret_key, 
-                      session_token=session_token,
-                  	  force_refresh=True)
+control_plane.connect(
+	from_url=endpoint,
+	access_key=access_key,
+	secret_key=secret_key, 
+	session_token=session_token,
+	force_refresh=True
+)
 
 # create an API client in Dev stage
 cls.client = DataAPIClient(stage="test", region_name=region)
@@ -104,7 +106,7 @@ response = client.delete_attributes(
 
 #### Return Type
 
-JSON
+JSON - Document
 
 #### Returns
 
@@ -153,7 +155,7 @@ response = client.delete_metadata(
 
 #### Return Type
 
-JSON
+JSON - Document
 
 #### Returns
 
@@ -204,7 +206,7 @@ delete_mode: str = None
 
 #### Return Type
 
-JSON
+JSON - Document
 
 #### Returns
 
@@ -250,7 +252,7 @@ response = client.delete_schema(
 
 #### Return Type
 
-JSON
+JSON - Document
 
 #### Returns
 
@@ -265,7 +267,6 @@ JSON
 ##### Response Structure
 
 * `DataModified` - Boolean indicator of if the Attributes were deleted
-
 
 ---- 
 ### find
@@ -323,7 +324,7 @@ response = client.find(
 
 #### Return Type
 
-JSON
+JSON - Document
 
 #### Returns
 
@@ -386,7 +387,7 @@ response = client.get_endpoints(
 
 #### Return Type
 
-JSON
+JSON - Document
 
 #### Returns
 
@@ -440,7 +441,7 @@ response = client.get_export_status(
 
 #### Return Type
 
-JSON
+JSON - Document
 
 #### Returns
 
@@ -496,7 +497,7 @@ response = client.get_info(
 
 #### Return Type
 
-JSON
+JSON - Document
 
 #### Returns
 
@@ -655,7 +656,7 @@ response = client.get_metadata(
 
 #### Return Type
 
-JSON
+JSON - Document
 
 #### Returns
 
@@ -690,33 +691,40 @@ JSON
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http GET https://<data-api>/<stage>/namespaces
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
-)
+response = client.get_namespaces()
 ```
 
 #### Parameters
 
+None
+
 #### Return Type
+
+JSON - List
 
 #### Returns
 
 ##### Response Syntax
 
 ```json
-{
-
-}
+[
+	"Namespace 1",
+	"Namespace 2",
+	...
+	"Namespace N"
+]
 ```
 
 ##### Response Structure
+
+* List of Namespaces
 
 ---- 
 ### get_resource
@@ -733,12 +741,18 @@ http GET https://<data-api>/<stage>/<namespace>/<id>
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.get_resource(
+	data_type: str,
+	id: str,
+	prefer_master: str
 )
 ```
 
 #### Parameters
+
+* `data_type` (string) - The data type/Namespace
+* `id` (string) - The ID of the Item to fetch
+* `prefer_master`
 
 #### Return Type
 
