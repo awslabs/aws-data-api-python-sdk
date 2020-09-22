@@ -10,6 +10,7 @@ import logging
 
 __version__ = "0.9.0b1"
 
+
 class DataAPIClient:
     """AWS Data API Client.
     """
@@ -412,10 +413,10 @@ class DataAPIClient:
     def get_export_status(self, data_type: str, job_name: str, job_run_id: str = None):
         """Get the status of an Export Job.
         """
-        qp = {"JobName": job_name}
+        qp = {params.JOB_NAME_PARAM: job_name}
 
         if job_run_id is not None:
-            qp["JobRunId"] = job_run_id
+            qp[params.JOB_RUN_PARAM] = job_run_id
 
         return self._handle_response(self._http_handler.get(data_type=data_type, path="export", query_params=qp))
 

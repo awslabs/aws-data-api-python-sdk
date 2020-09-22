@@ -64,6 +64,28 @@ Method that enables you to delete specific Attributes from a Resource or Metadat
 
 #### Request Syntax
 
+__HTTP__
+
+```json
+http DELETE https://<data-api>/<stage>/<namespace>/<id>
+{
+	"Resource": [
+		"Attribute1",
+		"Attribute2",
+		...,
+		"AttributeN"
+	],
+	"Metadata": [
+		"Attribute1",
+		"Attribute2",
+		...,
+		"AttributeN"	
+	]
+}
+```
+
+__Python Client__
+
 ```python
 response = client.delete_attributes(
 	data_type: str, 
@@ -82,7 +104,7 @@ response = client.delete_attributes(
 
 #### Return Type
 
-dict
+JSON
 
 #### Returns
 
@@ -96,15 +118,26 @@ dict
 
 ##### Response Structure
 
-* dict - 
-	* `DataModified` - Boolean indicator of if the Attributes were deleted
+* `DataModified` - Boolean indicator of if the Attributes were deleted
 
 ---- 
 ### delete_metadata
 
-Method that deletes Metadata for an Item.
+Request to delete Metadata for an Item.
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http DELETE https://<data-api>/<stage>/<namespace>/<id>
+{
+	"Metadata": []
+}
+
+```
+
+__Python Client__
 
 ```python
 response = client.delete_metadata(
@@ -120,7 +153,7 @@ response = client.delete_metadata(
 
 #### Return Type
 
-dict
+JSON
 
 #### Returns
 
@@ -134,15 +167,26 @@ dict
 
 ##### Response Structure
 
-* dict - 
-	* `DataModified` - Boolean indicator of if the Attributes were deleted
+* `DataModified` - Boolean indicator of if the Attributes were deleted
 
 ---- 
 ### delete_resource
 
-Deletes a Resource and it's associated Metadata.
+Deletes a Resource and its associated Metadata.
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http DELETE https://<data-api>/<stage>/<namespace>/<id>
+{
+	"DeleteMode": str
+}
+
+```
+
+__Python Client__
 
 ```python
 response = client.delete_resource(
@@ -160,7 +204,7 @@ delete_mode: str = None
 
 #### Return Type
 
-dict
+JSON
 
 #### Returns
 
@@ -174,8 +218,7 @@ dict
 
 ##### Response Structure
 
-* dict - 
-	* `DataModified` - Boolean indicator of if the Attributes were deleted
+* `DataModified` - Boolean indicator of if the Attributes were deleted
 	
 ---- 
 ### delete_schema
@@ -183,6 +226,15 @@ dict
 Removes the Schema for Resources or Metadata from a Namespace (requires elevated privileges).
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http DELETE https://<data-api>/<stage>/<namespace>/schema/<schema type>
+
+```
+
+__Python Client__
 
 ```python
 response = client.delete_schema(
@@ -198,7 +250,7 @@ response = client.delete_schema(
 
 #### Return Type
 
-dict
+JSON
 
 #### Returns
 
@@ -212,8 +264,7 @@ dict
 
 ##### Response Structure
 
-* dict - 
-	* `DataModified` - Boolean indicator of if the Attributes were deleted
+* `DataModified` - Boolean indicator of if the Attributes were deleted
 
 
 ---- 
@@ -222,6 +273,33 @@ dict
 Performs a search for an Item based upon Attribute values provided.
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http POST https://<data-api>/<stage>/<namespace>/<id>
+{
+	"Resource": {
+		"Attribute1": str,
+		"Attribute2": str,
+		...,
+		"AttributeN":str
+	},
+	"Metadata": {
+		"Attribute1": str,
+		"Attribute2": str,
+		...,
+		"AttributeN":str	
+	},
+	"Limit": int,
+	"Segment": int,
+	"TotalSegments": int,
+	"Consistent": bool
+}
+
+```
+
+__Python Client__
 
 ```python
 response = client.find(
@@ -245,7 +323,7 @@ response = client.find(
 
 #### Return Type
 
-dict
+JSON
 
 #### Returns
 
@@ -269,17 +347,16 @@ dict
 ```
 
 ##### Response Structure
-
-* dict - 
-	* `Items` (list) - The Items that were found in the search request
-		* `id` (string) - The ID of the Item
-		* `ItemVersion` (int) - The version number of the Item - increments on each update
-		* `LastUpdateAction` (string) - The last action taken against the Item
-		* `LastUpdateDate` (string) - The date of the last action
-		* `LastUpdatedBy` (string) - The ARN of the Identity that performed the last action
-		* ...
-		* Attributes of the Item are projected into the search results
-	* `LastEvaluatedKey` (string) - String value that was the last evaluated by the search before the 'limit' was reached.
+ 
+* `Items` (list) - The Items that were found in the search request
+	* `id` (string) - The ID of the Item
+	* `ItemVersion` (int) - The version number of the Item - increments on each update
+	* `LastUpdateAction` (string) - The last action taken against the Item
+	* `LastUpdateDate` (string) - The date of the last action
+	* `LastUpdatedBy` (string) - The ARN of the Identity that performed the last action
+	* ...
+	* Attributes of the Item are projected into the search results
+* `LastEvaluatedKey` (string) - String value that was the last evaluated by the search before the 'limit' was reached.
 
 ---- 
 ### get_endpoints
@@ -287,6 +364,15 @@ dict
 Returns the endpoint addresses of the resources used by a namespace. This includes the Resource and Metadata stream addresses, and the ElasticSearch and Neptune configurations if they have been provisioned.
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/endpoints
+
+```
+
+__Python Client__
 
 ```python
 response = client.get_endpoints(
@@ -300,7 +386,7 @@ response = client.get_endpoints(
 
 #### Return Type
 
-dict
+JSON
 
 #### Returns
 
@@ -330,6 +416,14 @@ Returns the status of a data export job (export to S3).
 
 #### Request Syntax
 
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/export?JobName=str&JobRunId=str
+```
+
+__Python Client__
+
 ```python
 response = client.get_export_status(
 	data_type: str, 
@@ -346,14 +440,14 @@ response = client.get_export_status(
 
 #### Return Type
 
-dict
+JSON
 
 #### Returns
 
 ##### Response Syntax
 
 ```json
-{Job ID: {
+{<Job ID>: {
 	"Status": str,
 	"Started": datetime,
 	"ExecutedDuration": int,
@@ -381,6 +475,15 @@ Returns Metadata about an API Namespace. View all available Namespaces in the St
 
 #### Request Syntax
 
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/info
+
+```
+
+__Python Client__
+
 ```python
 response = client.get_info(
 	data_type: str
@@ -393,7 +496,7 @@ response = client.get_info(
 
 #### Return Type
 
-dict
+JSON
 
 #### Returns
 
@@ -498,19 +601,19 @@ dict
 	* `lambda_arn`: str - If a `lambda_function`, the ARN of the deployed function
 	* `rest_api_id`: str - If a `rest_api`, the ID of the API Gateway
 	* `rest_api_url`: str - If a `rest_api`, the URL of the API gateway (does not include custom domain information)
-* `SearchConfig`: dict - Provisioned Search Integration Information
-	* `DeliveryStreams`: dict - Information about the provisioned Delivery Streams for DynamoDB and Kinesis Firehose
-		* `Metadata`: dict - Information about delivery of Metadata to ElasticSearch
+* `SearchConfig`: JSON - Provisioned Search Integration Information
+	* `DeliveryStreams`: JSON - Information about the provisioned Delivery Streams for DynamoDB and Kinesis Firehose
+		* `Metadata`: JSON - Information about delivery of Metadata to ElasticSearch
 			* `DestinationDeliveryStreamARN`: str - Firehose Delivery Stream ARN for Metadata
 			* `SourceStreamARN`: str - DynamoDB Stream ARN for Metadata
-		* `Resource`: dict - Information about delivery of Resources to ElasticSearch
+		* `Resource`: JSON - Information about delivery of Resources to ElasticSearch
 			* `DestinationDeliveryStreamARN`: str - Firehose Delivery Stream ARN for Resources
 			* `SourceStreamARN`: str - DynamoDB Stream ARN for Resources
-	* `ElasticSearchDomain`: dict - The configured ElasticSearch Domain
+	* `ElasticSearchDomain`: JSON - The configured ElasticSearch Domain
 		* `ARN`: str - ARN of the ElasticSearch Service Domain
 		* `DomainId`: str - Domain ID for the ElasticSearch Service
 		* `ElasticSearchEndpoint`: str - Endpoint Address for ElasticSearch
-* `SearchSetup`: dict - Configuration information supplied by Administrator for Search Integration
+* `SearchSetup`: JSON - Configuration information supplied by Administrator for Search Integration
 	* `ElasticSearchDomain`: str - Name of the ElasticSearch Domain to be used for Indexing
 	* `FailedSearchIndexRecordBucket`: str - S3 Bucket to be used for failed indexing records
 	* `FirehoseDeliveryIamRoleARN`: str - IAM Role ARN that contains permissions for Lambda to write to Kinesis Firehose, and Firehose to write to ElasticSearch
@@ -525,17 +628,34 @@ dict
 ---- 
 ### get_metadata
 
+Retrieves Metadata for an Item
+
 #### Request Syntax
 
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>/meta
+
+```
+
+__Python Client__
+
 ```python
-response = client.<>(
-	<>: str
+response = client.get_metadata(
+	data_type: str,
+	id: str
 )
 ```
 
 #### Parameters
 
+* `data_type` (string) - The data type/Namespace
+* `id` (string) - The ID of the Item to fetch Metadata for
+
 #### Return Type
+
+JSON
 
 #### Returns
 
@@ -543,16 +663,38 @@ response = client.<>(
 
 ```json
 {
-
+	"MetadataAttribute1": "MetadataValue1",
+	"MetadataAttribute2": "MetadataValue2",
+	...
+	"MetadataAttributeN": "MetadataValueN",
+	"ItemVersion": int,
+	"LastUpdateAction": str,
+	"LastUpdateDate": datetime,
+	"LastUpdatedBy": str
 }
 ```
 
 ##### Response Structure
 
+* `MetadataAttributes` - The Metadata Attributes associated with the Resource
+* `ItemVersion` - The current version number of the Metadata entry
+* `LastUpdateAction` - `insert` or `update` depending on the last action take on the Metadata
+* `LastUpdateDate` - The date and time of the `LastUpdateAction`
+* `LastUpdatedBy` - The Identity ARN of the user who performed the last action
+
 ---- 
 ### get_namespaces
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
 
 ```python
 response = client.<>(
@@ -581,6 +723,15 @@ response = client.<>(
 
 #### Request Syntax
 
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
+
 ```python
 response = client.<>(
 	<>: str
@@ -607,6 +758,15 @@ response = client.<>(
 ### get_schema
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
 
 ```python
 response = client.<>(
@@ -636,6 +796,15 @@ response = client.<>(
 Performs a search on data References using a graph traversal. Depth indicates the number of levels of hierarchy and references to be traversed.
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
 
 ```python
 response = client.lineage_search(
@@ -678,7 +847,7 @@ List
 
 * List of References
 	* Reference
-		* `AdditionalProperties` - Dict containing properties attached to the reference
+		* `AdditionalProperties` - JSON containing properties attached to the reference
 			* `date` - the DateTime that the Reference was created
 			* ...
 		* `Label` - The type of Reference - defaults to 'References'
@@ -689,6 +858,15 @@ List
 ### list_items
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
 
 ```python
 response = client.<>(
@@ -717,6 +895,15 @@ response = client.<>(
 
 #### Request Syntax
 
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
+
 ```python
 response = client.<>(
 	<>: str
@@ -743,6 +930,15 @@ response = client.<>(
 ### put_info
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
 
 ```python
 response = client.<>(
@@ -771,6 +967,15 @@ response = client.<>(
 
 #### Request Syntax
 
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
+
 ```python
 response = client.<>(
 	<>: str
@@ -797,6 +1002,15 @@ response = client.<>(
 ### put_references
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
 
 ```python
 response = client.<>(
@@ -825,6 +1039,15 @@ response = client.<>(
 
 #### Request Syntax
 
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
+
 ```python
 response = client.<>(
 	<>: str
@@ -851,6 +1074,15 @@ response = client.<>(
 ### put_schema
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
 
 ```python
 response = client.<>(
@@ -879,6 +1111,15 @@ response = client.<>(
 
 #### Request Syntax
 
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
+
 ```python
 response = client.<>(
 	<>: str
@@ -905,6 +1146,15 @@ response = client.<>(
 ### restore_item
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
 
 ```python
 response = client.<>(
@@ -933,6 +1183,15 @@ response = client.<>(
 
 #### Request Syntax
 
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
+
 ```python
 response = client.<>(
 	<>: str
@@ -959,6 +1218,15 @@ response = client.<>(
 ### start_export
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
 
 ```python
 response = client.<>(
@@ -987,6 +1255,15 @@ response = client.<>(
 
 #### Request Syntax
 
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
+
 ```python
 response = client.<>(
 	<>: str
@@ -1013,6 +1290,15 @@ response = client.<>(
 ### validate_item
 
 #### Request Syntax
+
+__HTTP__
+
+```json
+http GET https://<data-api>/<stage>/<namespace>/<id>
+
+```
+
+__Python Client__
 
 ```python
 response = client.<>(
