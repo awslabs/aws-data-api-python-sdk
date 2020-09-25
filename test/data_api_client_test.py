@@ -73,6 +73,8 @@ class DataAPIClientTest(unittest.TestCase):
     def _create_item(self, data_type: str, id: str):
         res = {"Resource": {"attr1": "abc", "attr2": "xyz", "attr3": self.uuid}}
         response = self.client.put_resource(data_type=data_type, id=id, item=res)
+        meta = {"Metadata": {"meta1": "abc", "meta2": "xyz", "meta3": self.uuid}}
+        response = self.client.put_metadata(data_type=data_type, id=id, meta=meta)
 
     def setUp(self):
         # create a test
@@ -199,19 +201,26 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertIsNotNone(self.client.get_metadata(data_type=data_type, id=_item_id))
 
     def test_get_resource(self):
+        # get the item as default
         item = self.client.get_resource(data_type=data_type, id=_item_id)
         self.assertEqual(item.get("Item").get("Resource").get("id"), _item_id)
+        self.assertIsNotNone(item.get("Item").get("Metadata"))
+
+        # get the item with metadata fetch suppressed
+        item = self.client.get_resource(data_type=data_type, id=_item_id, suppress_metadata_fetch=True)
+        self.assertIsNone(item.get("Item").get("Metadata"))
 
     def test_get_resource_include_master(self):
         self._create_item(data_type=data_type, id=_master_id)
         self.client.set_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
-        item = self.client.get_resource(data_type=data_type, id=_item_id, prefer_master=params.ITEM_MASTER_INCLUDE)
+        item = self.client.get_resource(data_type=data_type, id=_item_id, item_master_option=params.ITEM_MASTER_INCLUDE)
         self.assertEqual(item.get("Master").get("Resource").get("id"), _master_id)
+        self.assertIsNotNone(item.get("Item"))
 
     def test_get_resource_prefer_master(self):
         self._create_item(data_type=data_type, id=_master_id)
         self.client.set_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
-        item = self.client.get_resource(data_type=data_type, id=_item_id, prefer_master=params.ITEM_MASTER_PREFER)
+        item = self.client.get_resource(data_type=data_type, id=_item_id, item_master_option=params.ITEM_MASTER_PREFER)
         self.assertEqual(item.get("Master").get("Resource").get("id"), _master_id)
         self.assertIsNone(item.get("Item"))
 

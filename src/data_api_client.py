@@ -263,12 +263,20 @@ class DataAPIClient:
         """
         return self._handle_response(self._http_handler.head(data_type=data_type, path=f"{id}"))
 
-    def get_resource(self, data_type: str, id: str, prefer_master: bool = None):
+    def get_resource(self, data_type: str, id: str, item_master_option: str = None,
+                     suppress_metadata_fetch: bool = False):
         """Get a Resource from the Namespace.
         """
-        p = None
-        if prefer_master is not None:
-            p = {params.ITEM_MASTER_QP: prefer_master}
+        p = {}
+        if item_master_option is not None:
+            if item_master_option.lower() not in [params.ITEM_MASTER_INCLUDE.lower(),
+                                                  params.ITEM_MASTER_PREFER.lower()]:
+                raise InvalidArgumentsException(
+                    f"Item Master option should be {params.ITEM_MASTER_PREFER} or {params.ITEM_MASTER_INCLUDE}")
+            p[params.ITEM_MASTER_QP] = item_master_option
+
+        if suppress_metadata_fetch is not None:
+            p[params.SUPPRESS_ITEM_METADATA_FETCH] = suppress_metadata_fetch
 
         return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{id}", query_params=p))
 

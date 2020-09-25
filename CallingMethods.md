@@ -724,7 +724,7 @@ JSON - List
 
 ##### Response Structure
 
-* List of Namespaces
+* List of Data API Namespaces
 
 ---- 
 ### get_resource
@@ -734,7 +734,7 @@ JSON - List
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http GET https://<data-api>/<stage>/<namespace>/<id>?ItemMaster=str&SuppressItemMetadataFetch=bool
 
 ```
 
@@ -744,7 +744,8 @@ __Python Client__
 response = client.get_resource(
 	data_type: str,
 	id: str,
-	prefer_master: str
+	item_master_option: str,
+	suppress_metadata_fetch: bool = False
 )
 ```
 
@@ -752,9 +753,12 @@ response = client.get_resource(
 
 * `data_type` (string) - The data type/Namespace
 * `id` (string) - The ID of the Item to fetch
-* `prefer_master`
+* `item_master_option ` - If MDM features are in use, and the Resource has an Item Master ID, then use `include` to also return the Item Master, or `prefer` to *only* return the Item Master
+* `suppress_metadata_fetch` - By default, the Item will return both the Resource and the Metadata. Set this parameter to `True` to only return the Resource.
 
 #### Return Type
+
+JSON - Document
 
 #### Returns
 
@@ -762,12 +766,61 @@ response = client.get_resource(
 
 ```json
 {
-
+	"Item": {
+		"Resource": {
+			"Resource Attribute 1: "Resource Value 1",
+			"Resource Attribute 2: "Resource Value 2",
+			...
+			"Resource Attribute N: "Resource Value N",
+			"ItemVersion": int,
+			"LastUpdateAction": str,
+			"LastUpdateDate": datetime,
+			"LastUpdatedBy": str
+		},
+		"Metadata": {
+			"Metadata Attribute 1: "Metadata Value 1",
+			"Metadata Attribute 2: "Metadata Value 2",
+			...
+			"Metadata Attribute N: "Metadata Value N",
+			"ItemVersion": int,
+			"LastUpdateAction": str,
+			"LastUpdateDate": datetime,
+			"LastUpdatedBy": str
+		}		
+	},
+	"Master": {
+		"Resource": {
+			"Resource Attribute 1: "Resource Value 1",
+			"Resource Attribute 2: "Resource Value 2",
+			...
+			"Resource Attribute N: "Resource Value N",
+			"ItemVersion": int,
+			"LastUpdateAction": str,
+			"LastUpdateDate": datetime,
+			"LastUpdatedBy": str
+		},
+		"Metadata": {
+			"Metadata Attribute 1: "Metadata Value 1",
+			"Metadata Attribute 2: "Metadata Value 2",
+			...
+			"Metadata Attribute N: "Metadata Value N",
+			"ItemVersion": int,
+			"LastUpdateAction": str,
+			"LastUpdateDate": datetime,
+			"LastUpdatedBy": str
+		}	
+	}
 }
 ```
 
 ##### Response Structure
 
+* `Item` - The Data API Item
+	* `Resource` - The Data API Resource for the Item
+	* `Metadata` - Metadata associated with the Resource (optional)
+* `Master` - Item Master associated with the Item (optional)
+	* `Resource` - The Data API Resource for the Master
+	* `Metadata` - Metadata associated with the Master Resource (optional)
 ---- 
 ### get_schema
 
