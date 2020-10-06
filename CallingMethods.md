@@ -1090,7 +1090,13 @@ response = client.provision(
 * `metadata_indexes` - The Attributes and datatypes to be used for Metadata Indexes. CSV formatted string identical to `table_indexes`.
 * `delete_mode` - Type of deletes to be performed against the Namespace. `soft` deletes can be restored from the recycle bin, while `tombstone` deletes are permanent.
 * `crawler_rolename` - The name of the Role to be used for AWS Glue Schema Crawlers (invoking user must possess `IAM::PassRole` for this role name).
-* `schema_validation_refresh_hitcount` - Numeric value indicating the interval that the cache of the Schemas for this Namespace are valid. During this time, Data API operations may use an old verison of the Schema when updates occur. Set this value to a very high number if you don't change the Namespace schema very often.
+* `schema_validation_refresh_hitcount` - Numeric value indicating the interval that the cache of the Schemas for this Namespace are valid. During this time, Data API operations may use an old verison of the Schema when updates occur. Set this value to a very high number if you don't change the Namespace schema very often. Setting this value to 0 will validate the schema on each Update but will increase latency and read costs.
+* `graph_endpoint` - The adddress of the Gremlin compatible endpoint to use for graph queries and storage of `References`.
+* `allow_non_item_master_writes` - Boolean setting which determines whether updates can be performed against objects that have an ItemMasterID set. True will allow writes to continue, while False will result in Updates receiving an error with an advisory message of which Item is designated as Master.
+* `strict_occv` - Strict Optimisitic Concurrency Control - indicates whether the caller must include the current VersionID of the Item with each update request, ensuring that concurrent updates are processed in order.
+* `catalog_database` - The AWS Glue Database name into which Data API tables should be indexed
+* `es_domain` - Option domain name for an ElasticSearch domain, where objects will be indexed for natural language queries
+* `es_delivery_role_arn` - The ARN of the Role which should be used to deliver data from the Data API storage into ElasticSearch. Please see [Data API Security](https://github.com/awslabs/aws-data-api/wiki/Security) for more information.
 
 #### Return Type
 
