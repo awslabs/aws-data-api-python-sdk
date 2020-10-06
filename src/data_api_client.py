@@ -105,7 +105,7 @@ class DataAPIClient:
         if not any([x in structure for x in valid_top_level]):
             raise InvalidArgumentsException("Item must include Resource, Metadata, or References")
 
-    def provision(self, data_type, primary_key, table_indexes=None, metadata_indexes=None, delete_mode=None,
+    def provision(self, data_type: str, primary_key: str, table_indexes=None, metadata_indexes=None, delete_mode=None,
                   crawler_rolename=None, schema_validation_refresh_hitcount=None,
                   graph_endpoint=None, allow_non_item_master_writes=True, strict_occv=False, catalog_database=None,
                   es_domain=None, es_delivery_role_arn=None, es_delivery_failure_s3=None, pitr_enabled=True,
@@ -144,6 +144,12 @@ class DataAPIClient:
         """
         # return GET /endpoints
         return self._handle_response(self._http_handler.get(data_type=data_type, path="endpoints"))
+
+    def get_status(self, data_type: str):
+        """Method to return the status of a Namsepace
+        """
+        # return GET /status
+        return self._handle_response(self._http_handler.get(data_type=data_type, path="status"))
 
     def get_info(self, data_type: str):
         """Method to return Namespace Metadata.

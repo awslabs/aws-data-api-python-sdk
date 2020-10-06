@@ -193,8 +193,12 @@ class DataAPIClientTest(unittest.TestCase):
         job_run_id = None
         # self.assertTrue(self.client.get_export_status(job_name, job_run_id))
 
+    def test_get_status(self):
+        info = self.client.get_status(data_type=data_type)
+        self.assertEquals(info.get("Status"), params.STATUS_ACTIVE)
+
     def test_get_info(self):
-        info = self.client.get_info(data_type=data_type, )
+        info = self.client.get_info(data_type=data_type)
         self.assertIsNotNone(info)
 
     def test_get_metadata(self):

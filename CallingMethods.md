@@ -110,6 +110,8 @@ JSON - Document
 
 #### Returns
 
+Indicator of whether the attribute deletion was successful. All attributes will be deleted, or none will be.
+
 ##### Response Syntax
 
 ```
@@ -158,6 +160,8 @@ response = client.delete_metadata(
 JSON - Document
 
 #### Returns
+
+Indicator of whether the Metadata was deleted.
 
 ##### Response Syntax
 
@@ -210,6 +214,8 @@ JSON - Document
 
 #### Returns
 
+Indicator of whether the Resource deletion was successful.
+
 ##### Response Syntax
 
 ```
@@ -255,6 +261,8 @@ response = client.delete_schema(
 JSON - Document
 
 #### Returns
+
+Indicator of whether the deletion was successful.
 
 ##### Response Syntax
 
@@ -328,6 +336,8 @@ JSON - Document
 
 #### Returns
 
+List of Items found by the search request.
+
 ##### Response Syntax
 
 ```
@@ -391,6 +401,8 @@ JSON - Document
 
 #### Returns
 
+Endpoint information in use by the Data API.
+
 ##### Response Syntax
 
 ```
@@ -444,6 +456,8 @@ response = client.get_export_status(
 JSON - Document
 
 #### Returns
+
+JSON Document indexing status information for the Export job.
 
 ##### Response Syntax
 
@@ -500,6 +514,8 @@ response = client.get_info(
 JSON - Document
 
 #### Returns
+
+API Namespace and Stage level Metadata.
 
 ##### Response Syntax
 
@@ -660,6 +676,8 @@ JSON - Document
 
 #### Returns
 
+Metadata associated with the Item.
+
 ##### Response Syntax
 
 ```json
@@ -711,6 +729,8 @@ JSON - List
 
 #### Returns
 
+List of Namespaces avialable from this API Stage
+
 ##### Response Syntax
 
 ```json
@@ -761,6 +781,8 @@ response = client.get_resource(
 JSON - Document
 
 #### Returns
+
+JSON Document containing the Item, and optionally the Item Master associated with the Item.
 
 ##### Response Syntax
 
@@ -821,6 +843,7 @@ JSON - Document
 * `Master` - Item Master associated with the Item (optional)
 	* `Resource` - The Data API Resource for the Master
 	* `Metadata` - Metadata associated with the Master Resource (optional)
+	
 ---- 
 ### get_schema
 
@@ -829,29 +852,48 @@ JSON - Document
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http GET https://<data-api>/<stage>/<namespace>/schema/<schema type>
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.get_schema(
+	data_type: str,
+	schema_type: str
 )
 ```
 
 #### Parameters
 
+* `data_type` (string) - The data type/Namespace
+* `schema_type` (string) - Schemas can be applied to Resources, Metadata, or both. Use `resource` or `metadata` to fetch the type of schema you are interested in
+
 #### Return Type
 
+JSON - Schema
+
 #### Returns
+
+JSON Schema associated with the Resource or Metadata
 
 ##### Response Syntax
 
 ```json
 {
-
+    "$id": "https://example.com/person.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": <Namespace>,
+    "type": "object",
+    "properties": {
+        <property>: {
+            "description": str,
+            "type": str
+        }
+    },
+    "required": list,
+    "additionalProperties": bool
 }
 ```
 
@@ -884,7 +926,7 @@ response = client.lineage_search(
 
 #### Parameters
 
-* `data_type` - The Data Type to perform a lineage search on
+* `data_type` - The Data Type/Namespace to perform a lineage search on
 * `id` - The Primary Key of the Item you wish to search for References from
 * `direction` - Enum indicating the direction of search. `UP`/`DataAPIClient.SEARCH_UPSTREAM` for an upstream search (objects that reference the indicated ID), or `DOWN`/`DataAPIClient.SEARCH_DOWNSTREAM` for a downstream search (objects that the indicated ID references)
 * `max_depth` - Depth of the search in generations of References
@@ -894,6 +936,8 @@ response = client.lineage_search(
 List
 
 #### Returns
+
+List of References for the provided Item.
 
 ##### Response Syntax
 
@@ -924,60 +968,129 @@ List
 ---- 
 ### list_items
 
+Lists all Resources in an API Namespace and Stage. This API supports pagination through the use of a `start_token`, and you can access multiple concurrent lists through parallel listings by using `segment` and `total_segment`.
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
-
+http GET https://<data-api>/<stage>/<namespace>/list?Limit=int&Segment=int&TotalSegments=int&ExclusiveStartKey=str
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.list_items(
+	data_type: str, 
+	page_size: int = None, 
+	start_token: str = None, 
+	segment: int = None,
+	total_segments: int = None
 )
 ```
 
 #### Parameters
 
+* `data_type` - The Data Type/Namespace
+* `page_size` - The number of Items to return in this request
+* `start_token` - The continuation token to be used for pagination
+* `segment` - When using parallel listings, this value indicates the segment ID that should be returned relative to all segments in the scan
+* `total_segments` - When using parallel listings, the number of all segments that will be requested
+
 #### Return Type
 
+JSON - Document
+
 #### Returns
+
+List of Items in the API Namespace given the pagination settings
 
 ##### Response Syntax
 
 ```json
 {
-
+	"Items": [
+		{
+			<Data API Item>
+		},
+		...
+	],
+	"LastEvaluatedKey": {
+        <table primary key>: str
+    }
 }
 ```
 
 ##### Response Structure
 
+* `Items` - List of Data API Items returned by the operation
+* `LastEvaluatedKey` - Struct containing the ID of the last item processed by the List page. Match this value to input parameter `start_token`.
+
 ---- 
 ### provision
+
+Creates a new Data API Namespace. This operation is asyncronous and returns immediately. To determine status of provisioning, use `/status` or `get_status()`.
 
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http PUT https://<data-api>/<stage>/<namespace>/provision
+{
+	"ApiName": str,
+	"PrimaryKey": str,
+	"TableIndexes": str,
+	"MetadataIndexes": str,		
+	"DeleteMode": str (soft | tombstone),
+	"CrawlerRolename": str,
+	"SchemaValidationRefreshHitCount": int,
+	"GremlinAddress": str,
+	"NonItemMasterWritesAllowed": bool,	
+	"StrictOCCV": str
+	"CatalogDatabase": str,	
+	"ElasticSearchDomain":str,
+	"FirehoseDeliveryIamRoleArn": str,
+	"FailedIndexRecordBucket": str,
+	"PointInTimeRecoveryEnabled": bool,
+	"KMSKeyARN": str
+}
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.provision(
+	data_type, 
+	primary_key, 
+	table_indexes=None, 
+	metadata_indexes=None, 
+	delete_mode=None,
+	crawler_rolename=None, 
+	schema_validation_refresh_hitcount=None,
+	graph_endpoint=None, 
+	allow_non_item_master_writes=True, 
+	strict_occv=False, 
+	catalog_database=None,
+	es_domain=None, 
+	es_delivery_role_arn=None, 
+	es_delivery_failure_s3=None, 
+	pitr_enabled=True,
+	kms_key_arn=None
 )
 ```
 
 #### Parameters
+
+* `data_type | ApiName` - The name of the data type or Namespace to create
+* `primary_key` - The Attribute of the object to be used as the primary key
+* `table_indexes` - The Attributes and datatypes to be used for Table Indexes. Format is a comman separated list of name value pairs such as `Attribute1=dataType,Attribute2=dataType`. Supported data types are `string`, `number`, `int`, and `bin`.
+* `metadata_indexes` - The Attributes and datatypes to be used for Metadata Indexes. CSV formatted string identical to `table_indexes`.
+* `delete_mode` - Type of deletes to be performed against the Namespace. `soft` deletes can be restored from the recycle bin, while `tombstone` deletes are permanent.
+* `crawler_rolename` - The name of the Role to be used for AWS Glue Schema Crawlers (invoking user must possess `IAM::PassRole` for this role name).
+* `schema_validation_refresh_hitcount` - Numeric value indicating the interval that the cache of the Schemas for this Namespace are valid. During this time, Data API operations may use an old verison of the Schema when updates occur. Set this value to a very high number if you don't change the Namespace schema very often.
 
 #### Return Type
 
