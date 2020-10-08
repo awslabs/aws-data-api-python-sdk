@@ -27,6 +27,9 @@ class DataAPIClientTest(unittest.TestCase):
     def setUpClass(cls):
         region = os.getenv("AWS_REGION")
 
+        if region is None:
+            raise Exception("Must configure AWS_REGION environment variable")
+
         # bootstrapping the control plane
         control_plane = DataApiControlPlane(tls=True, region_name=region)
         access_key = None
@@ -53,7 +56,11 @@ class DataAPIClientTest(unittest.TestCase):
                               access_key=access_key,
                               secret_key=secret_key,
                               session_token=session_token,
-                              force_refresh=True)
+                              force_refresh=False)
+
+        set_logging = os.getenv('LOG_LEVEL')
+        if set_logging is not None:
+            _log_level = set_logging
 
         # create an API client in Dev stage
         cls.client = DataAPIClient(stage="dev", region_name=region, log_level=_log_level)
@@ -150,7 +157,7 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertIsNone(self.client.get_schema(data_type=data_type, schema_type=schema_type))
 
         if original_schema is not None:
-            self.client.put_schema(schema_type, original_schema)
+            self.client.put_schema(data_type=data_type, schema_type=schema_type, json_schema=original_schema)
 
     def test_find_item(self):
         results = self.client.find(data_type=data_type, resource_attributes={"attr3": self.uuid})
@@ -195,7 +202,7 @@ class DataAPIClientTest(unittest.TestCase):
 
     def test_get_status(self):
         info = self.client.get_status(data_type=data_type)
-        self.assertEquals(info.get("Status"), params.STATUS_ACTIVE)
+        self.assertEqual(info.get("Status"), params.STATUS_ACTIVE)
 
     def test_get_info(self):
         info = self.client.get_info(data_type=data_type)
@@ -296,8 +303,12 @@ class DataAPIClientTest(unittest.TestCase):
         #                                      es_delivery_role_arn, es_delivery_failure_s3, pitr_enabled, kms_key_arn))
 
     def test_put_info(self):
-        api_metadata = None
-        # self.assertTrue(self.client.put_info(api_metadata))
+        magic = shortuuid.uuid()
+        t = "TestValue"
+        api_metadata = {t: magic}
+        self.assertTrue(self.client.put_info(data_type=data_type, api_metadata=api_metadata))
+        got = self.client.get_info(data_type=data_type, attribute_filters=[t])
+        self.assertEqual(magic, got.get(t))
 
     def test_put_metadata(self):
         meta = {"Metadata": {"CostCenter": "100", "Owner": "meyersi@amazon.com"}}

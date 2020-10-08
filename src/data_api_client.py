@@ -151,11 +151,19 @@ class DataAPIClient:
         # return GET /status
         return self._handle_response(self._http_handler.get(data_type=data_type, path="status"))
 
-    def get_info(self, data_type: str):
+    def get_info(self, data_type: str, attribute_filters: list = None):
         """Method to return Namespace Metadata.
         """
+        apply_filters = None
+
+        if attribute_filters is not None:
+            apply_filters = {
+                params.ATTRIBUTE_FILTER_PARAM: ','.join(attribute_filters)
+            }
+
         # return GET /info
-        return self._handle_response(self._http_handler.get(data_type=data_type, path="info"))
+        return self._handle_response(
+            self._http_handler.get(data_type=data_type, path="info", query_params=apply_filters))
 
     def put_info(self, data_type: str, api_metadata: dict):
         """Method to create Namespace Metadata."""
@@ -289,7 +297,7 @@ class DataAPIClient:
     def get_metadata(self, data_type: str, id: str):
         """Get Metadata for an Item in the Namespace.
         """
-        # return GET /id/meta
+        # return GET /id/meta   
         return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{id}/meta"))
 
     def delete_resource(self, data_type: str, id: str, delete_mode: str = None):

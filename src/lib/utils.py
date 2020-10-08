@@ -25,3 +25,15 @@ def get_credentials() -> Credentials:
     credentials = Credentials(access_key=_access_key, secret_key=_secret_key, session_token=_session_token)
 
     return credentials
+
+
+def resolve_url_info(url: str) -> tuple:
+    url_tokens = url.split("/")
+
+    if "http" in url:
+        url_tokens = url_tokens[2:]
+
+    if len(url_tokens) == 1:
+        return url_tokens[0], None, True
+    else:
+        return url_tokens[0], url_tokens[1], False

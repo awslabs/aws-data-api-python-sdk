@@ -1,5 +1,6 @@
 import json
 import os
+import src.exceptions as e
 from src.lib.http_handler import HttpHelper
 from datetime import datetime
 import src.lib.utils as utils
@@ -12,9 +13,12 @@ class DataApiControlPlane:
     _tls = True
 
     def __init__(self, region_name, override_url=None, tls=True):
-        self._region_name = region_name
-        self._override_url = override_url
-        self._tls = tls
+        if region_name is None:
+            raise e.InvalidArgumentsException("Region Name must be provided")
+        else:
+            self._region_name = region_name
+            self._override_url = override_url
+            self._tls = tls
 
     def _load_uris(self):
         if self._base_uris is None:
@@ -26,7 +30,7 @@ class DataApiControlPlane:
     def is_custom_domain(self, stage):
         stage_info = self._base_uris.get(stage)
 
-        if stage_info.get('URL') is not None:
+        if stage_info is not None and stage_info.get('URL') is not None:
             return True
         else:
             return False
@@ -48,17 +52,24 @@ class DataApiControlPlane:
         filepath = f"{file_dir}/endpoints.json"
 
         if not os.path.exists(filepath) or force_refresh:
-            url_tokens = from_url.split("/")
+            host, stage, is_custom_domain = utils.resolve_url_info(from_url)
+
+            if self._tls:
+                host = f"https://{host}"
+            else:
+                host = f"http://{host}"
 
             # create an http handler just for the bootstrap request
-            http_handler = HttpHelper(host="/".join(url_tokens[:-1]), stage=url_tokens[len(url_tokens) - 1],
+            http_handler = HttpHelper(host=host, stage=stage,
                                       region=self._region_name, access_key=_access_key,
-                                      secret_key=_secret_key, session_token=_session_token)
-            endpoints = http_handler.get(data_type=None, path="data-apis").json()
+                                      secret_key=_secret_key, session_token=_session_token,
+                                      custom_domain=is_custom_domain)
+            response = http_handler.get(data_type=None, path="data-apis")
+            endpoints = response.json()
 
-            if endpoints is not None and endpoints.get("message") is None:
+            if endpoints is not None and endpoints.get("Message") is None:
                 endpoints["RefreshDate"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                # write the endpoint config to endpoints.json.del
+                # write the endpoint config to endpoints.json
                 with open(filepath, 'w+') as f:
                     json.dump(endpoints, f, sort_keys=True, indent=4)
 

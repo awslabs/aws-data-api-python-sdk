@@ -82,10 +82,10 @@ class HttpHelper:
                              headers=self._default_headers)
 
     @authed
-    def get(self, data_type: str, path: str, query_params: str = None):
+    def get(self, data_type: str, path: str, query_params: dict = None):
         encoded_path = self._get_url(data_type, path, query_params)
 
-        return requests.get(url=f"{self._make_path(encoded_path)}", auth=self._auth, headers=self._default_headers)
+        return requests.get(url=self._make_path(encoded_path), auth=self._auth, headers=self._default_headers)
 
     @authed
     def put(self, data_type: str, path: str, path_params: str = None, put_body=None):
