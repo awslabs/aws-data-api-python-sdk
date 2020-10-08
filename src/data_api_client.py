@@ -64,7 +64,7 @@ class DataAPIClient:
             f"Bound Data API Client in Stage {self._stage} to {self._http_handler.get_base_path()}")
 
     def _handle_response(self, response):
-        if response.status_code == http.HTTPStatus.CREATED:
+        if response.status_code in [http.HTTPStatus.CREATED, http.HTTPStatus.ACCEPTED]:
             return True
         elif response.status_code == http.HTTPStatus.NOT_MODIFIED:
             return False

@@ -1097,56 +1097,77 @@ response = client.provision(
 * `catalog_database` - The AWS Glue Database name into which Data API tables should be indexed
 * `es_domain` - Option domain name for an ElasticSearch domain, where objects will be indexed for natural language queries
 * `es_delivery_role_arn` - The ARN of the Role which should be used to deliver data from the Data API storage into ElasticSearch. Please see [Data API Security](https://github.com/awslabs/aws-data-api/wiki/Security) for more information.
+* `es_delivery_failure_s3` - S3 Bucket and Prefix to use for failed index writes.
+* `pitr_enabled` - Boolean value indicating whether the underyling storage should support Point In Time Recovery Snapshots (incurs an extra cost)
+* `kms_key_arn` - The KMS Master Key ARN to be used for data encryption.
 
 #### Return Type
 
+Boolean
+
 #### Returns
+
+Boolean Value indicating True for successful provisioning request, or an exception will be raised indicating the error encountered.
 
 ##### Response Syntax
 
-```json
-{
-
-}
-```
+n/a
 
 ##### Response Structure
 
 ---- 
 ### put_info
 
+Creates Metadata for an API Namespace. This can be used for ownership and attribution of the data, or any other requirements you may have.
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http PUT https://<data-api>/<stage>/<namespace>/info
+{
+	"MetadataAttribute1": str,
+	"MetadataAttribute2": str,
+	...
+	"MetadataAttributeN": str,		
+}
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.put_info(
+	data_type: str, 
+	api_metadata: dict
 )
 ```
 
 #### Parameters
 
+* `data_type` - The API Namespace against which you will create Metadata
+* `api_metadata` - Dictionary of Attributes for Metadata. This object supports nested types.
+
 #### Return Type
 
+JSON - Document
+
 #### Returns
+
+The outcome of the Metadata update operation
 
 ##### Response Syntax
 
 ```json
 {
-
+	"DataModified": bool
 }
 ```
 
 ##### Response Structure
+
+* `DataModified` - Boolean indicating if the Update was successful
 
 ---- 
 ### put_metadata
