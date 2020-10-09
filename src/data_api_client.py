@@ -297,7 +297,7 @@ class DataAPIClient:
     def get_metadata(self, data_type: str, id: str):
         """Get Metadata for an Item in the Namespace.
         """
-        # return GET /id/meta   
+        # return GET /id/meta
         return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{id}/meta"))
 
     def delete_resource(self, data_type: str, id: str, delete_mode: str = None):

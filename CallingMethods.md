@@ -1172,26 +1172,36 @@ The outcome of the Metadata update operation
 ---- 
 ### put_metadata
 
+Creates or updates Item Metadata for the provided ID
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http PUT https://<data-api>/<stage>/<namespace>/<id>/meta
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.put_metadata(
+	data_type: str,
+	id: str,
+	meta: dict
 )
 ```
 
 #### Parameters
 
+* `data_type` - The Data Type or Namespace for the provided Item
+* `id` - The Primary Key value of the Item
+* `meta` - Dictionary of Attributes or document structure to associate with the Item as Metadata. Format can be either a qualified Dictionary (for example `{"Metadata":{attrs...}}`, or simply the Attribution dictionary itself.
+
 #### Return Type
+
+JSON - Document
 
 #### Returns
 
@@ -1199,11 +1209,18 @@ response = client.<>(
 
 ```json
 {
-
+	"DataModified": bool,
+	"Messages": {
+		"Warning": dict
+	}
 }
 ```
 
 ##### Response Structure
+
+* `DataModified` - Boolean value indicating whether the Metadata update/write was completed
+* `Messages` - Dictionary of any warning messages encountered during write
+	* `Warning` - Warning level messages that may require Application behaviour changes
 
 ---- 
 ### put_references
