@@ -316,8 +316,8 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertIsNotNone(response)
 
     def test_put_references(self):
-        item = None
-        # self.assertTrue(self.client.put_references(item))
+        r = None
+        # self.assertTrue(self.client.put_references(r))
 
     def test_set_item_master(self):
         item_id = None

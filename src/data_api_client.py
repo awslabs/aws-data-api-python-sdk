@@ -388,15 +388,15 @@ class DataAPIClient:
         # remove the primary key from the item
         return self._put_item(data_type=data_type, id=id, item=_meta)
 
-    def put_references(self, data_type: str, id: str, item: dict):
+    def put_references(self, data_type: str, id: str, references: dict):
         """Create new References for a Resource in the Namespace.
         """
-        if "References" in item:
-            _item = item
+        if "References" in references:
+            _item = references
         else:
-            _item = {"References": item}
+            _item = {"References": [references]}
 
-        return self._put_item(data_type=data_type, id=id, item=item)
+        return self._put_item(data_type=data_type, id=id, item=_item)
 
     def lineage_search(self, data_type: str, id: str, direction: str, max_depth: int = None):
         """Perform an upstream or downstream data lineage search.
@@ -408,7 +408,7 @@ class DataAPIClient:
             else:
                 p = {"search_depth": max_depth}
 
-        if direction.upper() == SEARCH_UPSTREAM:
+        if direction.upper() == 'UP':
             d = "upstream"
         else:
             d = "downstream"

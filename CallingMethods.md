@@ -782,7 +782,21 @@ JSON - Document
 
 #### Returns
 
-JSON Document containing the Item, and optionally the Item Master associated with the Item.
+JSON Document containing the Item, and optionally the Item Master associated with the Item. In addition to the data stored in the Resource, several special fields are returned as part of this request:
+
+* `Arn` - The Object ARN. Structure of the ARN is:`arn:aws:dapi:<region>:<account>:<namespace>-<stage>:<primary key>`
+	* `<region>` - The Region where the Data API is hosting the data
+	* `<account>` - The AWS Account ID where the data is stored.
+	* `<namespace>` - The Data Type/Namespace for the Resource
+	* `<stage>` - The Data API Stage, allowing for item level segmentation of data
+	* `<primary key>` - The Primary Key value for the Item
+* `ItemVersion` - An integer value indicating how many versions of the object have been stored. This value is used for enforcing Optimistic Concurrency Controls
+* `LastUpdateAction` - The last `insert`, `update`, or `delete` action applied to this Resource
+* `LastUpdateDate` - The date and time of the last operation on the data, in [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601). Format `yyyy-MM-dd HH:mm:ss`.
+* `LastUpdatedBy` - The ARN of the security prinicipal who performed the `LastUpdateAction`. Format is `<account>.<ID>.<username>`.
+	* `<account>` - The AWS Account ID who vended the security credential
+	* `<id>` - The Primary ID of the princpal. For IAM/STS tokens this is the `ACCESS KEY`.
+	* `<username>` - The username of the principal. For static configurations this will be the Role Name or Lambda Function of Data API.
 
 ##### Response Syntax
 
@@ -790,6 +804,7 @@ JSON Document containing the Item, and optionally the Item Master associated wit
 {
 	"Item": {
 		"Resource": {
+			"Arn": str
 			"Resource Attribute 1: "Resource Value 1",
 			"Resource Attribute 2: "Resource Value 2",
 			...
@@ -812,6 +827,7 @@ JSON Document containing the Item, and optionally the Item Master associated wit
 	},
 	"Master": {
 		"Resource": {
+			"Arn": str		
 			"Resource Attribute 1: "Resource Value 1",
 			"Resource Attribute 2: "Resource Value 2",
 			...
@@ -1179,8 +1195,10 @@ Creates or updates Item Metadata for the provided ID
 __HTTP__
 
 ```json
-http PUT https://<data-api>/<stage>/<namespace>/<id>/meta
-
+http PUT https://<data-api>/<stage>/<namespace>/<id>
+{
+	"Metadata": dict
+}
 ```
 
 __Python Client__
@@ -1225,38 +1243,71 @@ JSON - Document
 ---- 
 ### put_references
 
+Creates a set of References, or relationships, between Items stored by Data API's. The relationships can carry user defined properties, and are organised as a property-graph within Data API's. For a single Item, you can create multiple 'outbound' relationships. You can access the structure of the relationship graph with [`lineage_search()`](#lineage_search).
+
+Please note that the target Item for the Reference must be specified as an ARN, and the request will fail if only the ID is provided. This is to enable References to span API Namespaces. To obtain an object's ARN, please use [`get_resource()`](#get_resource).
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
-
+http PUT https://<data-api>/<stage>/<namespace>/<id>
+{
+	"References": [
+		{
+			"Resource": <resource ARN>,
+			"ReferenceAttribute1": str, 
+			"ReferenceAttribute2": str,
+			...
+			"ReferenceAttributeN": str
+		}
+	]'
+}
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.put_references(
+	data_type: str, 
+	id: str, 
+	references: dict
 )
 ```
 
 #### Parameters
 
+* `data_type` - The Data Type or Namespace for the provided Item
+* `id` - The Primary Key value of the Item
+* `references` - The outbound References to be created, with the dictionary structure as listed in the HTTP specification.
+
 #### Return Type
 
+JSON - Document
+
 #### Returns
+
+JSON structure representing the outcome of the References creation
 
 ##### Response Syntax
 
 ```json
 {
-
+	"ReferenceCount": int,
+	"Exceptions": [
+		{
+			"ID": str,
+			"Message": str
+		}
+	]
 }
 ```
 
 ##### Response Structure
+
+* `ReferenceCount`: Number of References successfully created
+* `Exceptions`: Option List of Exceptions encountered during processing. The ID of the failed target object is provided
 
 ---- 
 ### put_resource
