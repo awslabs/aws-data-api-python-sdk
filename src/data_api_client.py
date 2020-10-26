@@ -272,12 +272,12 @@ class DataAPIClient:
         return self._handle_response(
             self._http_handler.post(data_type=data_type, path="find", post_body=search_request))
 
-    def validate_item(self, data_type: str, id: str):
+    def validate_item(self, data_type: str, item_id: str):
         """Check if an Item exists by ID in the Namespace.
         """
-        return self._handle_response(self._http_handler.head(data_type=data_type, path=f"{id}"))
+        return self._handle_response(self._http_handler.head(data_type=data_type, path=f"{item_id}"))
 
-    def get_resource(self, data_type: str, id: str, item_master_option: str = None,
+    def get_resource(self, data_type: str, item_id: str, item_master_option: str = None,
                      suppress_metadata_fetch: bool = False):
         """Get a Resource from the Namespace.
         """
@@ -292,36 +292,37 @@ class DataAPIClient:
         if suppress_metadata_fetch is not None:
             p[params.SUPPRESS_ITEM_METADATA_FETCH] = suppress_metadata_fetch
 
-        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{id}", query_params=p))
+        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{item_id}", query_params=p))
 
-    def get_metadata(self, data_type: str, id: str):
+    def get_metadata(self, data_type: str, item_id: str):
         """Get Metadata for an Item in the Namespace.
         """
         # return GET /id/meta
-        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{id}/meta"))
+        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{item_id}/meta"))
 
-    def delete_resource(self, data_type: str, id: str, delete_mode: str = None):
+    def delete_resource(self, data_type: str, item_id: str, delete_mode: str = None):
         """Delete an item from the Namespace based upon admin config (tombstone or soft delete).
         """
         # return DELETE /{id}
         body = {}
         if delete_mode is not None:
             body[params.DELETE_MODE] = delete_mode
-        return self._handle_response(self._http_handler.delete(data_type=data_type, path=f"{id}", delete_body=body))
+        return self._handle_response(
+            self._http_handler.delete(data_type=data_type, path=f"{item_id}", delete_body=body))
 
-    def delete_metadata(self, data_type: str, id: str):
+    def delete_metadata(self, data_type: str, item_id: str):
         """Delete Metadata for an Item from the Namespace.
         """
         return self._handle_response(
-            self._http_handler.delete(data_type=data_type, path=f"{id}", delete_body={"Metadata": {}}))
+            self._http_handler.delete(data_type=data_type, path=f"{item_id}", delete_body={"Metadata": {}}))
 
-    def restore_item(self, data_type: str, id: str):
+    def restore_item(self, data_type: str, item_id: str):
         """Restore a deleted Item in the Namespace (only supported after Soft Delete).
         """
         # return PUT /restore
-        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"{id}/restore"))
+        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"{item_id}/restore"))
 
-    def delete_attributes(self, data_type: str, id: str, resource_attributes=None, metadata_attributes=None):
+    def delete_attributes(self, data_type: str, item_id: str, resource_attributes=None, metadata_attributes=None):
         """Delete attributes from a Resource or Metadata.
         """
         # validate that at least 1 attribute list has been provided and their type is list
@@ -340,14 +341,15 @@ class DataAPIClient:
             delete["Metadata"] = metadata_attributes
 
         # return DELETE /{id}
-        return self._handle_response(self._http_handler.delete(data_type=data_type, path=f"{id}", delete_body=delete))
+        return self._handle_response(
+            self._http_handler.delete(data_type=data_type, path=f"{item_id}", delete_body=delete))
 
     # private method to perform a put body with the correct path
-    def _item_write(self, data_type: str, id: str, body: dict):
-        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"{id}", put_body=body))
+    def _item_write(self, data_type: str, item_id: str, body: dict):
+        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"{item_id}", put_body=body))
 
     # put a full item that is well formed by the client
-    def _put_item(self, data_type: str, id: str, item: dict, item_version: int = None, strict_schema: bool = None):
+    def _put_item(self, data_type: str, item_id: str, item: dict, item_version: int = None, strict_schema: bool = None):
         # ensure the item is well formed
         self._validate_item_structure(item)
 
@@ -365,9 +367,9 @@ class DataAPIClient:
             item["StrictSchemaValidation"] = 'True'
 
         # write the item structure
-        return self._item_write(data_type=data_type, id=id, body=item)
+        return self._item_write(data_type=data_type, item_id=item_id, body=item)
 
-    def put_resource(self, data_type: str, id: str, resource: dict, item_version: int = None):
+    def put_resource(self, data_type: str, item_id: str, resource: dict, item_version: int = None):
         """Create or update a Resource in the Namespace.
         """
         if params.RESOURCE in resource:
@@ -375,10 +377,10 @@ class DataAPIClient:
         else:
             _resource = {params.RESOURCE: resource}
 
-        return self._put_item(data_type=data_type, id=id, item=_resource, item_version=item_version).get(
+        return self._put_item(data_type=data_type, item_id=item_id, item=_resource, item_version=item_version).get(
             params.RESOURCE)
 
-    def put_metadata(self, data_type: str, id: str, meta: dict):
+    def put_metadata(self, data_type: str, item_id: str, meta: dict):
         """Create or update Metadata for a Resource in the Namespace
         """
         if params.METADATA in meta:
@@ -387,9 +389,9 @@ class DataAPIClient:
             _meta = {params.METADATA: meta}
 
         # remove the primary key from the item
-        return self._put_item(data_type=data_type, id=id, item=_meta).get(params.METADATA)
+        return self._put_item(data_type=data_type, item_id=item_id, item=_meta).get(params.METADATA)
 
-    def put_references(self, data_type: str, id: str, references: dict):
+    def put_references(self, data_type: str, item_id: str, references: dict):
         """Create or update References for a Resource in the Namespace.
         """
         if params.REFERENCES in references:
@@ -397,9 +399,9 @@ class DataAPIClient:
         else:
             _item = {params.REFERENCES: [references]}
 
-        return self._put_item(data_type=data_type, id=id, item=_item).get(params.REFERENCES)
+        return self._put_item(data_type=data_type, item_id=item_id, item=_item).get(params.REFERENCES)
 
-    def lineage_search(self, data_type: str, id: str, direction: str, max_depth: int = None):
+    def lineage_search(self, data_type: str, item_id: str, direction: str, max_depth: int = None):
         """Perform an upstream or downstream data lineage search.
         """
         p = None
@@ -415,7 +417,7 @@ class DataAPIClient:
             d = "downstream"
 
         # return GET /upstream or /downstream
-        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{id}/{d}", query_params=p))
+        return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{item_id}/{d}", query_params=p))
 
     def start_export(self, data_type: str, export_job_dpu: int, read_pct: int, s3_export_path: str, log_path: str,
                      setup_crawler: bool = True, kms_key_arn: str = None,
@@ -443,8 +445,9 @@ class DataAPIClient:
 
         return self._handle_response(self._http_handler.get(data_type=data_type, path="export", query_params=qp))
 
-    def understand(self, data_type: str, id: str, storage_location_attribute: str):
+    def understand(self, data_type: str, item_id: str, storage_location_attribute: str):
         """Run an AI powered Metadata resolver against a Resource.
         """
-        return self._handle_response(self._http_handler.put(data_type=data_type, path=f"{id}/understand", put_body={
-            params.STORAGE_LOCATION_ATTRIBUTE: storage_location_attribute}))
+        return self._handle_response(
+            self._http_handler.put(data_type=data_type, path=f"{item_id}/understand", put_body={
+                params.STORAGE_LOCATION_ATTRIBUTE: storage_location_attribute}))

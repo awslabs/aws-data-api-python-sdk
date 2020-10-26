@@ -68,20 +68,20 @@ class DataAPIClientTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         try:
-            cls.client.delete_resource(data_type=data_type, id=_item_id, delete_mode=params.DELETE_MODE_SOFT)
+            cls.client.delete_resource(data_type=data_type, item_id=_item_id, delete_mode=params.DELETE_MODE_SOFT)
         except ResourceNotFoundException:
             pass
 
         try:
-            cls.client.delete_resource(data_type=data_type, id=_master_id, delete_mode=params.DELETE_MODE_SOFT)
+            cls.client.delete_resource(data_type=data_type, item_id=_master_id, delete_mode=params.DELETE_MODE_SOFT)
         except ResourceNotFoundException:
             pass
 
-    def _create_item(self, data_type: str, id: str):
+    def _create_item(self, data_type: str, item_id: str):
         res = {"Resource": {"attr1": "abc", "attr2": "xyz", "attr3": self.uuid}}
-        response = self.client.put_resource(data_type=data_type, id=id, resource=res)
+        response = self.client.put_resource(data_type=data_type, item_id=item_id, resource=res)
         meta = {"Metadata": {"meta1": "abc", "meta2": "xyz", "meta3": self.uuid}}
-        response = self.client.put_metadata(data_type=data_type, id=id, meta=meta)
+        response = self.client.put_metadata(data_type=data_type, item_id=item_id, meta=meta)
 
     def setUp(self):
         # create a test
@@ -89,10 +89,10 @@ class DataAPIClientTest(unittest.TestCase):
             self.client.remove_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
         except ResourceNotFoundException:
             pass
-        self._create_item(data_type=data_type, id=_item_id)
+        self._create_item(data_type=data_type, item_id=_item_id)
 
         meta = {"Metadata": {"CostCenter": "1234", "Owner": "Ian Meyers"}}
-        response = self.client.put_metadata(data_type=data_type, id=_item_id, meta=meta)
+        response = self.client.put_metadata(data_type=data_type, item_id=_item_id, meta=meta)
 
     def test_namespaces(self):
         namespaces = self.client.get_namespaces()
@@ -102,7 +102,7 @@ class DataAPIClientTest(unittest.TestCase):
         d = "DataModified"
 
         def _do_update(attrs):
-            update = self.client.delete_attributes(data_type=data_type, id=_item_id, resource_attributes=attrs)
+            update = self.client.delete_attributes(data_type=data_type, item_id=_item_id, resource_attributes=attrs)
             if d in update:
                 return update.get(d)
             else:
@@ -111,23 +111,23 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertTrue(_do_update(["attr3"]))
 
         # now load the object and determine that attr3 is gone
-        item = self.client.get_resource(data_type=data_type, id=_item_id)
+        item = self.client.get_resource(data_type=data_type, item_id=_item_id)
         self.assertIsNotNone(item)
         self.assertIsNone(item.get("attr3", None))
 
     def test_delete_resource(self):
-        deletion = self.client.delete_resource(data_type=data_type, id=_item_id, delete_mode="soft").get("DataModified")
+        deletion = self.client.delete_resource(data_type=data_type, item_id=_item_id, delete_mode="soft").get("DataModified")
         self.assertTrue(deletion)
 
         # now check that I can't fetch it
         with self.assertRaises(ResourceNotFoundException):
-            item = self.client.get_resource(data_type=data_type, id=_item_id)
+            item = self.client.get_resource(data_type=data_type, item_id=_item_id)
 
     def test_delete_metadata(self):
-        self.assertTrue(self.client.delete_metadata(data_type=data_type, id=_item_id).get("DataModified"))
+        self.assertTrue(self.client.delete_metadata(data_type=data_type, item_id=_item_id).get("DataModified"))
 
         # now check that I can't fetch metadata
-        meta = self.client.get_metadata(data_type=data_type, id=_item_id)
+        meta = self.client.get_metadata(data_type=data_type, item_id=_item_id)
         self.assertIsNone(meta)
 
     def test_schema(self):
@@ -209,63 +209,63 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertIsNotNone(info)
 
     def test_get_metadata(self):
-        self.assertIsNotNone(self.client.get_metadata(data_type=data_type, id=_item_id))
+        self.assertIsNotNone(self.client.get_metadata(data_type=data_type, item_id=_item_id))
 
     def test_get_resource(self):
         # get the item as default
-        item = self.client.get_resource(data_type=data_type, id=_item_id)
+        item = self.client.get_resource(data_type=data_type, item_id=_item_id)
         self.assertEqual(item.get("Item").get("Resource").get("id"), _item_id)
         self.assertIsNotNone(item.get("Item").get("Metadata"))
 
         # get the item with metadata fetch suppressed
-        item = self.client.get_resource(data_type=data_type, id=_item_id, suppress_metadata_fetch=True)
+        item = self.client.get_resource(data_type=data_type, item_id=_item_id, suppress_metadata_fetch=True)
         self.assertIsNone(item.get("Item").get("Metadata"))
 
     def test_get_resource_include_master(self):
-        self._create_item(data_type=data_type, id=_master_id)
+        self._create_item(data_type=data_type, item_id=_master_id)
         self.client.set_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
-        item = self.client.get_resource(data_type=data_type, id=_item_id, item_master_option=params.ITEM_MASTER_INCLUDE)
+        item = self.client.get_resource(data_type=data_type, item_id=_item_id, item_master_option=params.ITEM_MASTER_INCLUDE)
         self.assertEqual(item.get("Master").get("Resource").get("id"), _master_id)
         self.assertIsNotNone(item.get("Item"))
 
     def test_get_resource_prefer_master(self):
-        self._create_item(data_type=data_type, id=_master_id)
+        self._create_item(data_type=data_type, item_id=_master_id)
         self.client.set_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
-        item = self.client.get_resource(data_type=data_type, id=_item_id, item_master_option=params.ITEM_MASTER_PREFER)
+        item = self.client.get_resource(data_type=data_type, item_id=_item_id, item_master_option=params.ITEM_MASTER_PREFER)
         self.assertEqual(item.get("Master").get("Resource").get("id"), _master_id)
         self.assertIsNone(item.get("Item"))
 
     def test_remove_master(self):
-        self._create_item(data_type=data_type, id=_master_id)
+        self._create_item(data_type=data_type, item_id=_master_id)
         self.client.set_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
 
         with self.assertRaises(InvalidArgumentsException):
             self.client.remove_item_master(data_type=data_type, item_id=_item_id, item_master_id="00")
 
     def test_update_resource(self):
-        res = self.client.get_resource(data_type=data_type, id=_item_id).get("Item").get("Resource")
+        res = self.client.get_resource(data_type=data_type, item_id=_item_id).get("Item").get("Resource")
 
         key = "attr4"
         val = f"Value4-{shortuuid.uuid()}"
         res[key] = val
 
-        response = self.client.put_resource(data_type=data_type, id=_item_id, resource=res)
+        response = self.client.put_resource(data_type=data_type, item_id=_item_id, resource=res)
         self.assertTrue(response.get(params.DATA_MODIFIED))
 
-        item = self.client.get_resource(data_type=data_type, id=_item_id)
+        item = self.client.get_resource(data_type=data_type, item_id=_item_id)
         self.assertEqual(item.get("Item").get("Resource").get(key), val)
 
     def test_update_metadata(self):
-        meta = self.client.get_metadata(data_type=data_type, id=_item_id)
+        meta = self.client.get_metadata(data_type=data_type, item_id=_item_id)
 
         key = "attr4"
         val = f"Value4-{shortuuid.uuid()}"
         meta[key] = val
 
-        response = self.client.put_metadata(data_type=data_type, id=_item_id, meta=meta)
+        response = self.client.put_metadata(data_type=data_type, item_id=_item_id, meta=meta)
         self.assertTrue(response.get(params.DATA_MODIFIED))
 
-        meta = self.client.get_metadata(data_type=data_type, id=_item_id)
+        meta = self.client.get_metadata(data_type=data_type, item_id=_item_id)
         self.assertEqual(meta.get(key), val)
 
     def test_lineage_search(self):
@@ -310,7 +310,7 @@ class DataAPIClientTest(unittest.TestCase):
 
     def test_put_metadata(self):
         meta = {"Metadata": {"CostCenter": "100", "Owner": "meyersi@amazon.com"}}
-        response = self.client.put_metadata(data_type=data_type, id=_item_id, meta=meta)
+        response = self.client.put_metadata(data_type=data_type, item_id=_item_id, meta=meta)
         self.assertIsNotNone(response)
 
     def test_put_references(self):
@@ -330,7 +330,7 @@ class DataAPIClientTest(unittest.TestCase):
     def test_restore_item(self):
         self.test_delete_resource()
 
-        self.assertTrue(self.client.restore_item(data_type=data_type, id=_item_id))
+        self.assertTrue(self.client.restore_item(data_type=data_type, item_id=_item_id))
 
     def test_understand(self):
         id = None
@@ -338,12 +338,12 @@ class DataAPIClientTest(unittest.TestCase):
         # self.assertTrue(self.client.understand(id, storage_location_attribute))
 
     def test_validate_item(self):
-        validate_response = self.client.validate_item(data_type=data_type, id=_item_id)
+        validate_response = self.client.validate_item(data_type=data_type, item_id=_item_id)
         self.assertTrue(validate_response)
 
         # test invalid item
         with self.assertRaises(ResourceNotFoundException):
-            self.client.validate_item(data_type=data_type, id="-1")
+            self.client.validate_item(data_type=data_type, item_id="-1")
 
 
 if __name__ == '__main__':
