@@ -79,7 +79,7 @@ class DataAPIClientTest(unittest.TestCase):
 
     def _create_item(self, data_type: str, id: str):
         res = {"Resource": {"attr1": "abc", "attr2": "xyz", "attr3": self.uuid}}
-        response = self.client.put_resource(data_type=data_type, id=id, item=res)
+        response = self.client.put_resource(data_type=data_type, id=id, resource=res)
         meta = {"Metadata": {"meta1": "abc", "meta2": "xyz", "meta3": self.uuid}}
         response = self.client.put_metadata(data_type=data_type, id=id, meta=meta)
 
@@ -243,15 +243,15 @@ class DataAPIClientTest(unittest.TestCase):
             self.client.remove_item_master(data_type=data_type, item_id=_item_id, item_master_id="00")
 
     def test_update_resource(self):
-        item = self.client.get_resource(data_type=data_type, id=_item_id).get("Item").get("Resource")
+        res = self.client.get_resource(data_type=data_type, id=_item_id).get("Item").get("Resource")
 
         key = "attr4"
         val = f"Value4-{shortuuid.uuid()}"
-        item[key] = val
+        res[key] = val
 
-        response = self.client.put_resource(data_type=data_type, id=_item_id, item=item)
+        response = self.client.put_resource(data_type=data_type, id=_item_id, resource=res)
         self.assertEqual(response.get("DataModified"), True)
-        self.assertEqual(response.get("Messages"), {})
+        self.assertEqual(response.get("Messages").get("Item"), {})
 
         item = self.client.get_resource(data_type=data_type, id=_item_id)
         self.assertEqual(item.get("Item").get("Resource").get(key), val)
@@ -265,7 +265,6 @@ class DataAPIClientTest(unittest.TestCase):
 
         response = self.client.put_metadata(data_type=data_type, id=_item_id, meta=meta)
         self.assertEqual(response.get("DataModified"), True)
-        self.assertEqual(response.get("Messages"), {})
 
         meta = self.client.get_metadata(data_type=data_type, id=_item_id)
         self.assertEqual(meta.get(key), val)

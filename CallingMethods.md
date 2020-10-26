@@ -1379,38 +1379,74 @@ JSON structure indicating success status, and Messages where advisory warnings a
 ---- 
 ### put_schema
 
+Creates a Schema for Resources or Metadata that allow you to constrain the structure of the Data API Namespace. Schemas are provided in [JSON Schema](https://json-schema.org/) format, and can be applied to the data or metadata based upon your application requirements. You can completely restrict the structure of your objects, or add `additionalProperties=true` to let application developers add onto the item over time.
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http PUT https://<data-api>/schema/<schema type>
+{
+	"$id": "https://<your domain>/<namespace>.schema.json",
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "<Namespace>",
+	"type": "object",
+	"required": [ "Attribute1","Attribute2", ..., "AttributeN"],
+	"properties": {
+	  "Attribute1": {
+	    "type": <type>,
+	    "description": "Attribute 1 Description"
+	  },
+	  "Attribute2": {
+	    "type": <type>,
+	    "description": "Attribute 2 Description"
+	  },
+	  ...,
+	  "AttributeN": {
+	    "type": <type>,
+	    "description": "Attribute N Description"
+	  },
+	"additionalProperties": bool
+}
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.put_schema(
+	data_type: str, 
+	schema_type: str, 
+	json_schema: dict
 )
 ```
 
 #### Parameters
 
+* `data_type`: The Data Type or Namespace
+* `schema_type`: `resource` or `metadata`
+* `json_schema`: The JSON Schema to be applied to the Resource or Metadata
+
 #### Return Type
 
+JSON - Document
+
 #### Returns
+
+JSON Document indicating success of the schema update operation
 
 ##### Response Syntax
 
 ```json
 {
-
+	"DataModified": bool
 }
 ```
 
 ##### Response Structure
+
+* `DataModified`: Boolean value indicating whether the Schema was effectively written
 
 ---- 
 ### remove\_item\_master
