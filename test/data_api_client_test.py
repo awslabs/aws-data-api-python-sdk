@@ -250,8 +250,7 @@ class DataAPIClientTest(unittest.TestCase):
         res[key] = val
 
         response = self.client.put_resource(data_type=data_type, id=_item_id, resource=res)
-        self.assertEqual(response.get("DataModified"), True)
-        self.assertEqual(response.get("Messages").get("Item"), {})
+        self.assertTrue(response.get(params.DATA_MODIFIED))
 
         item = self.client.get_resource(data_type=data_type, id=_item_id)
         self.assertEqual(item.get("Item").get("Resource").get(key), val)
@@ -264,7 +263,7 @@ class DataAPIClientTest(unittest.TestCase):
         meta[key] = val
 
         response = self.client.put_metadata(data_type=data_type, id=_item_id, meta=meta)
-        self.assertEqual(response.get("DataModified"), True)
+        self.assertTrue(response.get(params.DATA_MODIFIED))
 
         meta = self.client.get_metadata(data_type=data_type, id=_item_id)
         self.assertEqual(meta.get(key), val)
@@ -317,12 +316,6 @@ class DataAPIClientTest(unittest.TestCase):
     def test_put_references(self):
         r = None
         # self.assertTrue(self.client.put_references(r))
-
-    def test_set_item_master(self):
-        item_id = None
-        item_master_id = None
-        # self.assertIsNotNone(self.client.get_resource(id=_item_id, prefer_master="include").get("Master"))
-        # self.assertTrue(self.client.set_item_master(item_id, item_master_id))
 
     def test_start_export(self):
         export_job_dpu = None

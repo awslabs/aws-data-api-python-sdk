@@ -368,35 +368,36 @@ class DataAPIClient:
         return self._item_write(data_type=data_type, id=id, body=item)
 
     def put_resource(self, data_type: str, id: str, resource: dict, item_version: int = None):
-        """Create a new Resource in the Namespace.
+        """Create or update a Resource in the Namespace.
         """
-        if "Resource" in resource:
+        if params.RESOURCE in resource:
             _resource = resource
         else:
-            _resource = {"Resource": resource}
+            _resource = {params.RESOURCE: resource}
 
-        return self._put_item(data_type=data_type, id=id, item=_resource, item_version=item_version)
+        return self._put_item(data_type=data_type, id=id, item=_resource, item_version=item_version).get(
+            params.RESOURCE)
 
     def put_metadata(self, data_type: str, id: str, meta: dict):
-        """Create Metadata for a Resource in the Namespace
+        """Create or update Metadata for a Resource in the Namespace
         """
-        if "Metadata" in meta:
+        if params.METADATA in meta:
             _meta = meta
         else:
-            _meta = {"Metadata": meta}
+            _meta = {params.METADATA: meta}
 
         # remove the primary key from the item
-        return self._put_item(data_type=data_type, id=id, item=_meta)
+        return self._put_item(data_type=data_type, id=id, item=_meta).get(params.METADATA)
 
     def put_references(self, data_type: str, id: str, references: dict):
-        """Create new References for a Resource in the Namespace.
+        """Create or update References for a Resource in the Namespace.
         """
-        if "References" in references:
+        if params.REFERENCES in references:
             _item = references
         else:
-            _item = {"References": [references]}
+            _item = {params.REFERENCES: [references]}
 
-        return self._put_item(data_type=data_type, id=id, item=_item)
+        return self._put_item(data_type=data_type, id=id, item=_item).get(params.REFERENCES)
 
     def lineage_search(self, data_type: str, id: str, direction: str, max_depth: int = None):
         """Perform an upstream or downstream data lineage search.
