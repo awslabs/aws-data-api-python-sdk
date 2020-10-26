@@ -1312,39 +1312,70 @@ JSON structure representing the outcome of the References creation
 ---- 
 ### put_resource
 
+Creates or updates a Data API Resource. For the pure HTTP interface, values of `Resource`, `Metadata`, and `References` can all be provided at the same time to completely update an Item.
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http PUT https://<data-api>/<stage>/<namespace>/<id>
+{
+	"Resource": {
+		<Attribute 1>: <Value 1>,
+		<Attribute 2>: <Value 2>,
+		<Attribute 3>: <Value 3>,
+		...
+		<Attribute N>: <Value N>,
+		"ItemVersion": <item version>
+	}
+}
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.put_resource(
+	data_type: str, 
+	id: str, 
+	resource: dict, 
+	item_version: int = None
 )
 ```
 
 #### Parameters
 
+* `data_type`: The API Data Type or Namespace
+* `id`: The primary key of the Resource to be created or updated
+* `resource`: The structure of the Resource to be updated
+* `item_version`: When Optimistic Concurrency Versioning (`strict_occv`) is enabled, the version of the item to be updated. For new items, this value should be null. If an existing Resource with the same ID is found on creation, the operation will fail
+
 #### Return Type
 
+JSON - Document
+
 #### Returns
+
+JSON structure indicating success status, and Messages where advisory warnings are encountered.
 
 ##### Response Syntax
 
 ```json
 {
-
+	"DataModified": bool,
+	"Messages": {
+		"Warning": dict
+	}
 }
 ```
 
 ##### Response Structure
 
+* `DataModified` - Boolean value indicating whether the Metadata update/write was completed
+* `Messages` - Dictionary of any warning messages encountered during write
+	* `Warning` - Warning level messages that may require Application behaviour changes
+	
 ---- 
 ### put_schema
 

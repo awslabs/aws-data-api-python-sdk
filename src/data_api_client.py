@@ -367,15 +367,15 @@ class DataAPIClient:
         # write the item structure
         return self._item_write(data_type=data_type, id=id, body=item)
 
-    def put_resource(self, data_type: str, id: str, item: dict, item_version: int = None):
+    def put_resource(self, data_type: str, id: str, resource: dict, item_version: int = None):
         """Create a new Resource in the Namespace.
         """
-        if "Resource" in item:
-            _item = item
+        if "Resource" in resource:
+            _resource = resource
         else:
-            _item = {"Resource": item}
+            _resource = {"Resource": resource}
 
-        return self._put_item(data_type=data_type, id=id, item=_item, item_version=item_version)
+        return self._put_item(data_type=data_type, id=id, item=_resource, item_version=item_version)
 
     def put_metadata(self, data_type: str, id: str, meta: dict):
         """Create Metadata for a Resource in the Namespace
