@@ -91,7 +91,7 @@ __Python Client__
 ```python
 response = client.delete_attributes(
 	data_type: str, 
-	id: str, 
+	item_id: str, 
 	resource_attributes=None, 
 	metadata_attributes=None
 )
@@ -100,7 +100,7 @@ response = client.delete_attributes(
 #### Parameters
 
 * `data_type` (string) - The data type/Namespace
-* `id` (string) - The ID of the Item to be modified
+* `item_id` (string) - The ID of the Item to be modified
 * `resource_attributes` (list) - The list of Attributes to remove from the Resource
 * `metadata_attributes` (list) - The list of Attributes to remove from the Metadata
 
@@ -146,14 +146,14 @@ __Python Client__
 ```python
 response = client.delete_metadata(
 	data_type: str, 
-	id: str
+	item_id: str
 )
 ```
 
 #### Parameters
 
 * `data_type` (string) - The data type/Namespace
-* `id` (string) - The ID of the Item to be modified
+* `item_id` (string) - The ID of the Item to be modified
 
 #### Return Type
 
@@ -197,7 +197,7 @@ __Python Client__
 ```python
 response = client.delete_resource(
 data_type: str, 
-id: str, 
+item_id: str, 
 delete_mode: str = None
 )
 ```
@@ -205,7 +205,7 @@ delete_mode: str = None
 #### Parameters
 
 * `data_type` (string) - The data type/Namespace
-* `id` (string) - The ID of the Item to be deleted
+* `item_id` (string) - The ID of the Item to be deleted
 * `delete_mode` (string) - The deletion mode, defaulted to the configuration set by the Data API Administrator. If Delete Mode Overrides are enabled, this setting this value will result in differing behaviour of the deletion. Use `TOMBSTONE` for completely delete the item and leave a record of its deletion (this cannot be reversed), or `SOFT` for soft deletion, which can be reversed with the [`restore_item()`](#restore_item) API request.
 
 #### Return Type
@@ -360,7 +360,7 @@ List of Items found by the search request.
 ##### Response Structure
  
 * `Items` (list) - The Items that were found in the search request
-	* `id` (string) - The ID of the Item
+	* `item_id` (string) - The ID of the Item
 	* `ItemVersion` (int) - The version number of the Item - increments on each update
 	* `LastUpdateAction` (string) - The last action taken against the Item
 	* `LastUpdateDate` (string) - The date of the last action
@@ -661,14 +661,14 @@ __Python Client__
 ```python
 response = client.get_metadata(
 	data_type: str,
-	id: str
+	item_id: str
 )
 ```
 
 #### Parameters
 
 * `data_type` (string) - The data type/Namespace
-* `id` (string) - The ID of the Item to fetch Metadata for
+* `item_id` (string) - The ID of the Item to fetch Metadata for
 
 #### Return Type
 
@@ -763,7 +763,7 @@ __Python Client__
 ```python
 response = client.get_resource(
 	data_type: str,
-	id: str,
+	item_id: str,
 	item_master_option: str,
 	suppress_metadata_fetch: bool = False
 )
@@ -772,7 +772,7 @@ response = client.get_resource(
 #### Parameters
 
 * `data_type` (string) - The data type/Namespace
-* `id` (string) - The ID of the Item to fetch
+* `item_id` (string) - The ID of the Item to fetch
 * `item_master_option ` - If MDM features are in use, and the Resource has an Item Master ID, then use `include` to also return the Item Master, or `prefer` to *only* return the Item Master
 * `suppress_metadata_fetch` - By default, the Item will return both the Resource and the Metadata. Set this parameter to `True` to only return the Resource.
 
@@ -934,7 +934,7 @@ __Python Client__
 ```python
 response = client.lineage_search(
 	data_type: str, 
-	id: str, 
+	item_id: str, 
 	direction: str, 
 	max_depth: int = None
 )
@@ -943,7 +943,7 @@ response = client.lineage_search(
 #### Parameters
 
 * `data_type` - The Data Type/Namespace to perform a lineage search on
-* `id` - The Primary Key of the Item you wish to search for References from
+* `item_id` - The Primary Key of the Item you wish to search for References from
 * `direction` - Enum indicating the direction of search. `UP`/`DataAPIClient.SEARCH_UPSTREAM` for an upstream search (objects that reference the indicated ID), or `DOWN`/`DataAPIClient.SEARCH_DOWNSTREAM` for a downstream search (objects that the indicated ID references)
 * `max_depth` - Depth of the search in generations of References
 
@@ -979,7 +979,7 @@ List of References for the provided Item.
 			* ...
 		* `Label` - The type of Reference - defaults to 'References'
 		* `TypeStage` - the Namespace and Stage of the Resource which this Reference points to
-		* `id` - The Resource ARN of the Item referenced
+		* `item_id` - The Resource ARN of the Item referenced
 
 ---- 
 ### list_items
@@ -1206,7 +1206,7 @@ __Python Client__
 ```python
 response = client.put_metadata(
 	data_type: str,
-	id: str,
+	item_id: str,
 	meta: dict
 )
 ```
@@ -1214,7 +1214,7 @@ response = client.put_metadata(
 #### Parameters
 
 * `data_type` - The Data Type or Namespace for the provided Item
-* `id` - The Primary Key value of the Item
+* `item_id` - The Primary Key value of the Item
 * `meta` - Dictionary of Attributes or document structure to associate with the Item as Metadata. Format can be either a qualified Dictionary (for example `{"Metadata":{attrs...}}`, or simply the Attribution dictionary itself.
 
 #### Return Type
@@ -1271,7 +1271,7 @@ __Python Client__
 ```python
 response = client.put_references(
 	data_type: str, 
-	id: str, 
+	item_id: str, 
 	references: dict
 )
 ```
@@ -1279,7 +1279,7 @@ response = client.put_references(
 #### Parameters
 
 * `data_type` - The Data Type or Namespace for the provided Item
-* `id` - The Primary Key value of the Item
+* `item_id` - The Primary Key value of the Item
 * `references` - The outbound References to be created, with the dictionary structure as listed in the HTTP specification.
 
 #### Return Type
@@ -1338,7 +1338,7 @@ __Python Client__
 ```python
 response = client.put_resource(
 	data_type: str, 
-	id: str, 
+	item_id: str, 
 	resource: dict, 
 	item_version: int = None
 )
@@ -1347,7 +1347,7 @@ response = client.put_resource(
 #### Parameters
 
 * `data_type`: The API Data Type or Namespace
-* `id`: The primary key of the Resource to be created or updated
+* `item_id`: The primary key of the Resource to be created or updated
 * `resource`: The structure of the Resource to be updated
 * `item_version`: When Optimistic Concurrency Versioning (`strict_occv`) is enabled, the version of the item to be updated. For new items, this value should be null. If an existing Resource with the same ID is found on creation, the operation will fail
 
@@ -1451,38 +1451,52 @@ JSON Document indicating success of the schema update operation
 ---- 
 ### remove\_item\_master
 
+Removes an item level link to an Item Master. This results in the Item becoming its own canonical master, and system settings around allowing of non-Item Master writes will no longer apply. Both the Item ID and the Item Master ID are validated.
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http DELETE https://<data-api>/<stage>/<namespace>/ItemMaster
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.remove_item_master(
+	data_type: str, 
+	item_id: str, 
+	item_master_id: str
 )
 ```
 
 #### Parameters
 
+* `data_type`: The Data Type or Namespace
+* `item_id`: The ID of the Item to have the ItemMaster setting removed
+* `item_master_id`: The ID of the Item used as the Master for this Item
+
 #### Return Type
 
+JSON - Document
+
 #### Returns
+
+Data structure indicating whether the item master removal was successful
 
 ##### Response Syntax
 
 ```json
 {
-
+	"DataModified": bool
 }
 ```
 
 ##### Response Structure
+
+* `DataModified`: `True` if the Item Master was removed
 
 ---- 
 ### restore_item
