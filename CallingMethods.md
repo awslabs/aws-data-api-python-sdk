@@ -2,6 +2,14 @@
 
 Once you have created a Client, you can start calling methods on your Data API. Each method in the client requires that you specify a `data_type`, which is a reference to the [Namespace](Concepts) you want to work with. You can discover all of the available Namespaces that the Data API you are connected to can support with the `get_namespaces()` method.
 
+## Exceptions
+
+* `ConstraintViolationException`: During an attempt to modify an object, the supplied Constraints were not satisfied and the update operation failed
+* `UnimplementedFeatureException`: Raised when you attempt to use `References` but haven't registered a backing Gremlin compatible data source
+* `ResourceNotFoundException`: Raised in any case where an ID is supplied that is not found in the Data API Namespace
+* `InvalidArgumentsException`: Raised when arguments are incompatible with the method signature or with each other. Check `message` for detail
+* `DetailedException`: Exception raised when the above are not relevant or correct. Check `message` and `detail` fields of the exception
+
 ## Client
 
 _class_ `DataAPIClient`
@@ -1501,74 +1509,92 @@ Data structure indicating whether the item master removal was successful
 ---- 
 ### restore_item
 
+Restores a soft-deleted item from the recycle bin.
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http PUT https://<data-api>/<stage>/<namespace>/<id>/restore
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.restore_item(
+	data_type: str, 
+	item_id: str
 )
 ```
 
 #### Parameters
 
+* `data_type`: The Data Type or Namespace
+* `item_id`: The ID of the Item to have the ItemMaster setting removed
+
 #### Return Type
+
+JSON - Document
 
 #### Returns
 
-##### Response Syntax
-
-```json
-{
-
-}
-```
-
-##### Response Structure
+Upon successful restoration, the full Resource is returned. Please see the documentation for [`get_resource()`](#get_resource) for the return type.
 
 ---- 
 ### set\_item\_master
 
+Links a child Resource to an Item Master, providing Master Data Management features around update and retrieval.
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
-
+http PUT https://<data-api>/<stage>/<namespace>/ItemMaster
+{
+	<primary key>: str
+	"ItemMasterID": str
+}
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.set_item_master(
+	data_type: str, 
+	item_id: str, 
+	item_master_id: str
 )
 ```
 
 #### Parameters
 
+* `primary key | item_id`: The ID of the Item to be linked to an item master
+* `item_master_id`: The ID of the Item to be used as an item master
+
 #### Return Type
 
+JSON - Document
+
 #### Returns
+
+Data structure indicating if the target Resource was updated
 
 ##### Response Syntax
 
 ```json
 {
-
+	<primary key>: str,
+	"DataModified": bool
 }
 ```
 
 ##### Response Structure
+
+* `primary key | item_id`: The ID of the Item which was linked to the item master
+* `DataModified`: Boolean value indicating whether the update succeeded
 
 ---- 
 ### start_export

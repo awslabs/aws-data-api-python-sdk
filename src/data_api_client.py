@@ -65,6 +65,12 @@ class DataAPIClient:
 
     def _handle_response(self, response):
         if response.status_code in [http.HTTPStatus.CREATED, http.HTTPStatus.ACCEPTED]:
+            if response.content is not None:
+                content_body = json.loads(response.content)
+
+                if content_body is not None:
+                    return content_body
+
             return True
         elif response.status_code == http.HTTPStatus.NOT_MODIFIED:
             return False
@@ -85,6 +91,9 @@ class DataAPIClient:
                 content_body = json.loads(response.get("content"))
                 if "Message" in content_body:
                     message = content_body.get("Message")
+                else:
+                    return content_body
+
             raise DetailedException(message)
         else:
             if response is None:

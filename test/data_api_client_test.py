@@ -17,11 +17,13 @@ data_type = "MyItem"
 _item_id = "1234567890"
 _master_id = "9999999999"
 _log_level = 'INFO'
+_uuid = shortuuid.uuid()
+_resource = {params.RESOURCE: {"attr1": "abc", "attr2": "xyz", "attr3": _uuid}}
+_metadata = {params.METADATA: {"meta1": "abc", "meta2": "xyz", "meta3": _uuid}}
 
 
 class DataAPIClientTest(unittest.TestCase):
     client = None
-    uuid = shortuuid.uuid()
 
     @classmethod
     def setUpClass(cls):
@@ -78,10 +80,8 @@ class DataAPIClientTest(unittest.TestCase):
             pass
 
     def _create_item(self, data_type: str, item_id: str):
-        res = {"Resource": {"attr1": "abc", "attr2": "xyz", "attr3": self.uuid}}
-        response = self.client.put_resource(data_type=data_type, item_id=item_id, resource=res)
-        meta = {"Metadata": {"meta1": "abc", "meta2": "xyz", "meta3": self.uuid}}
-        response = self.client.put_metadata(data_type=data_type, item_id=item_id, meta=meta)
+        response = self.client.put_resource(data_type=data_type, item_id=item_id, resource=_resource)
+        response = self.client.put_metadata(data_type=data_type, item_id=item_id, meta=_metadata)
 
     def setUp(self):
         # create a test
@@ -116,7 +116,8 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertIsNone(item.get("attr3", None))
 
     def test_delete_resource(self):
-        deletion = self.client.delete_resource(data_type=data_type, item_id=_item_id, delete_mode="soft").get("DataModified")
+        deletion = self.client.delete_resource(data_type=data_type, item_id=_item_id, delete_mode="soft").get(
+            "DataModified")
         self.assertTrue(deletion)
 
         # now check that I can't fetch it
@@ -160,7 +161,7 @@ class DataAPIClientTest(unittest.TestCase):
             self.client.put_schema(data_type=data_type, schema_type=schema_type, json_schema=original_schema)
 
     def test_find_item(self):
-        results = self.client.find(data_type=data_type, resource_attributes={"attr3": self.uuid})
+        results = self.client.find(data_type=data_type, resource_attributes={"attr3": self._uuid})
         self.assertIsNotNone(results)
         self.assertIsNotNone(results.get("Items"))
         self.assertEqual(len(results.get("Items")), 1)
@@ -176,7 +177,7 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertEqual(results.get("Items")[0].get("attr1"), _id)
 
         # find with limit
-        results = self.client.find(data_type=data_type, resource_attributes={"attr3": self.uuid}, limit=n)
+        results = self.client.find(data_type=data_type, resource_attributes={"attr3": self._uuid}, limit=n)
         self.assertIsNotNone(results)
         self.assertEqual(len(results.get("Items")), 1)
         self.assertEqual(results.get("Items")[0].get("id"), _item_id)
@@ -224,14 +225,16 @@ class DataAPIClientTest(unittest.TestCase):
     def test_get_resource_include_master(self):
         self._create_item(data_type=data_type, item_id=_master_id)
         self.client.set_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
-        item = self.client.get_resource(data_type=data_type, item_id=_item_id, item_master_option=params.ITEM_MASTER_INCLUDE)
+        item = self.client.get_resource(data_type=data_type, item_id=_item_id,
+                                        item_master_option=params.ITEM_MASTER_INCLUDE)
         self.assertEqual(item.get("Master").get("Resource").get("id"), _master_id)
         self.assertIsNotNone(item.get("Item"))
 
     def test_get_resource_prefer_master(self):
         self._create_item(data_type=data_type, item_id=_master_id)
         self.client.set_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
-        item = self.client.get_resource(data_type=data_type, item_id=_item_id, item_master_option=params.ITEM_MASTER_PREFER)
+        item = self.client.get_resource(data_type=data_type, item_id=_item_id,
+                                        item_master_option=params.ITEM_MASTER_PREFER)
         self.assertEqual(item.get("Master").get("Resource").get("id"), _master_id)
         self.assertIsNone(item.get("Item"))
 
@@ -330,7 +333,8 @@ class DataAPIClientTest(unittest.TestCase):
     def test_restore_item(self):
         self.test_delete_resource()
 
-        self.assertTrue(self.client.restore_item(data_type=data_type, item_id=_item_id))
+        restored = self.client.restore_item(data_type=data_type, item_id=_item_id)
+        self.assertEqual(_resource.get(params.RESOURCE).get("attr1"), restored.get("attr1"))
 
     def test_understand(self):
         id = None
