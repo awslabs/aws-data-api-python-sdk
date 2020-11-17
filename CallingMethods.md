@@ -653,7 +653,7 @@ API Namespace and Stage level Metadata.
 ---- 
 ### get_metadata
 
-Retrieves Metadata for an Item
+Retrieves only the Metadata for an Item.
 
 #### Request Syntax
 
@@ -712,6 +712,8 @@ Metadata associated with the Item.
 ---- 
 ### get_namespaces
 
+This method returns all of the available Data Types or Namespaces within a given Data API Endpoint.
+
 #### Request Syntax
 
 __HTTP__
@@ -757,12 +759,14 @@ List of Namespaces avialable from this API Stage
 ---- 
 ### get_resource
 
+Fetches a Resource from the Data API. By default, both the base Resource and its Metadata are returned. You can suppress the return of Metadata by setting `SuppressItemMetadataFeatch | suppress_metadata_fetch`. You can also selectively return only a subset of attributes with `IncludeOnlyAttributes | only_attributes`, and filter out unwanted attributes with `FilterAttributes | not_attributes`.
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>?ItemMaster=str&SuppressItemMetadataFetch=bool
+http GET https://<data-api>/<stage>/<namespace>/<id>?ItemMaster=str&SuppressItemMetadataFetch=bool&IncludeOnlyAttributes=str&FilterAttributes=str
 
 ```
 
@@ -773,7 +777,9 @@ response = client.get_resource(
 	data_type: str,
 	item_id: str,
 	item_master_option: str,
-	suppress_metadata_fetch: bool = False
+	suppress_metadata_fetch: bool = False,
+	only_attributes:list = None,
+	not_attributes:list = None
 )
 ```
 
@@ -783,6 +789,8 @@ response = client.get_resource(
 * `item_id` (string) - The ID of the Item to fetch
 * `item_master_option ` - If MDM features are in use, and the Resource has an Item Master ID, then use `include` to also return the Item Master, or `prefer` to *only* return the Item Master
 * `suppress_metadata_fetch` - By default, the Item will return both the Resource and the Metadata. Set this parameter to `True` to only return the Resource.
+* `only_attributes` - The list of attributes to fetch. The Resource's primary key value is also always returned
+* `not_attributes` - List of attributes to filter from the response.
 
 #### Return Type
 
