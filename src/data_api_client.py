@@ -287,7 +287,7 @@ class DataAPIClient:
         return self._handle_response(self._http_handler.head(data_type=data_type, path=f"{item_id}"))
 
     def get_resource(self, data_type: str, item_id: str, item_master_option: str = None,
-                     suppress_metadata_fetch: bool = False):
+                     suppress_metadata_fetch: bool = False, only_attributes: list = None, not_attributes: list = None):
         """Get a Resource from the Namespace.
         """
         p = {}
@@ -300,6 +300,12 @@ class DataAPIClient:
 
         if suppress_metadata_fetch is not None:
             p[params.SUPPRESS_ITEM_METADATA_FETCH] = suppress_metadata_fetch
+
+        if only_attributes is not None:
+            p[params.WHITELIST_ATTRIBUTES] = ",".join(only_attributes)
+
+        if not_attributes is not None:
+            p[params.BLACKLIST_ATTRIBUTES] = ",".join(not_attributes)
 
         return self._handle_response(self._http_handler.get(data_type=data_type, path=f"{item_id}", query_params=p))
 

@@ -222,6 +222,29 @@ class DataAPIClientTest(unittest.TestCase):
         item = self.client.get_resource(data_type=data_type, item_id=_item_id, suppress_metadata_fetch=True)
         self.assertIsNone(item.get("Item").get("Metadata"))
 
+    def test_get_resource_whitelist_attribute(self):
+        self._create_item(data_type=data_type, item_id=_master_id)
+
+        # get the item with an attribute whitelist
+        item = self.client.get_resource(data_type=data_type, item_id=_item_id, suppress_metadata_fetch=True,
+                                        only_attributes=["attr1"]).get(
+            params.ITEM).get(params.RESOURCE)
+
+        # data structure should now not include attr2 and attr3
+        msg = "Found non-whitelisted Attribute"
+        self.assertIsNone(item.get("attr2"), msg)
+        self.assertIsNone(item.get("attr3"), msg)
+
+    def test_get_resource_blacklist_attribute(self):
+        self._create_item(data_type=data_type, item_id=_master_id)
+        # get the item with an attribute blacklist
+        item = self.client.get_resource(data_type=data_type, item_id=_item_id, suppress_metadata_fetch=True,
+                                        not_attributes=["attr1"]).get(
+            params.ITEM).get(params.RESOURCE)
+
+        msg = "Found blacklisted Attribute"
+        self.assertIsNone(item.get("attr1"), msg)
+
     def test_get_resource_include_master(self):
         self._create_item(data_type=data_type, item_id=_master_id)
         self.client.set_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
