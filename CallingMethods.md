@@ -1599,107 +1599,173 @@ Data structure indicating if the target Resource was updated
 ---- 
 ### start_export
 
+Starts an export job of Data API data from a Namespace to a specified location on S3. The export is performed with an AWS Glue Job, and response details will include AWS Glue based ID's. The export job can be viewed in [glue\_export\_dynamo\_table.py](https://github.com/awslabs/aws-data-api/blob/master/chalicelib/glue_export_dynamo_table.py). All output files are gzip compressed and may be encrypted with the KMS Key you provide.
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http PUT https://<data-api>/<stage>/<namespace>/export
+{
+	"S3ExportPath": str,
+	"ExportJobDPU": int,
+	"KMSKeyARN": str,
+	"ReadPct": int,
+	"LogPath": str,
+	"ExportType": str,
+	"CatalogDatabase": str,
+	"SetupCrawler": bool,
+	
+}
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.start_export(
+	data_type: str, 
+	export_job_dpu: int, 
+	read_pct: int, 
+	s3_export_path: str, 
+	log_path: str,
+	setup_crawler: bool = True, 
+	kms_key_arn: str = None,
+	catalog_database: str = None
 )
 ```
 
 #### Parameters
 
+* `data_type`: The Data API Namespace or Data Type
+* `export_job_dpu`: The number of AWS Glue Job Data Processing Units (DPU) to use for the export. Default 5.
+* `read_pct`: The percentage of total read capacity available in the underlying storage to dedicate to the export job. A higher number means a faster export, at the expense of API reads creating scaling events. Default 50%.
+* `s3_export_path`: The bucket and prefix to use for the export to S3. Format should be `s3://bucket/prefix`.
+* `log_path`: The bucket and prefix to use for job logging. Format should be `s3://bucket/prefix`.
+* `setup_crawler`: Boolean value indicating that after export, a Glue Crawler should be used to create a new table in the specified AWS Glue `catalog_database`
+* `catalog_database`: If you want to create a new Data Lake table from this export, indicate `setup_crawler=True` and provide a new or existing Glue Catalog database name.
+
 #### Return Type
 
+JSON - Document
+
 #### Returns
+
+JSON document indicating the properties associated with the running Export job.
 
 ##### Response Syntax
 
 ```json
 {
-
+	"JobName": str,
+	"JobRunId": str,
+	"Message": str,
+	"Crawler": str
 }
 ```
 
 ##### Response Structure
+
+* `JobName`: The name of the Job ID running the export. This name will be re-used for all exports of this Data Type or Namespace.
+* `JobRunID`: The ID of the currently running Job, which will be unique over time.
+* `Message`: Any messages associated with the export creation, including exceptions.
+* `Crawler`: If `setup_crawler=True`, the name of the Glue Crawler that was started after export completion.
 
 ---- 
 ### understand
 
+Runs a metadata extraction, with the objective to extract a topic model, keywords, and any other resolvable information from associated binary objects in the Namespace. Current utilities for understanding include:
+
+* [AWS Textract](https://aws.amazon.com/textract): Performs default language resolution, and extracts Entity Types, Key/Value pairs, and other document metadata
+* [AWS Comprehend](https://aws.amazon.com/comprehend): Performs entity extraction, Sentiment analysis, and Key Phrases
+
+Upon completion, all yielded metadata is added to the `Metadata` for the Item. Understander is run as a background, async AWS Lambda function and does not block this request.
+
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http PUT https://<data-api>/<stage>/<namespace>/<id>/understand
+{
+	"StorageAttribute": str
+}
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.understand(
+	data_type: str, 
+	item_id: str, 
+	storage_location_attribute: str
 )
 ```
 
 #### Parameters
 
+* `data_type`: The Namespace or Data Type containing the Item to be analysed
+* `item_id`: The ID of the Item to be analysed
+* `storage_location_attribute `: The name of the Attribute in the API Namespace that contains the location of the binary object to be used for metadata extraction. Default is `StorageLocation`.
+
 #### Return Type
 
+JSON - Document
+
 #### Returns
+
+JSON document indicating the status of the understanding analysis.
 
 ##### Response Syntax
 
 ```json
 {
-
+	`StatusCode`: int
 }
 ```
 
 ##### Response Structure
 
+* `StatusCode`: HTTP Response Code associated with the request to run the background understander job. 200 for OK, 4xx/5xx for Error.
+
 ---- 
 ### validate_item
+
+Lightweight method to determine if an object exists. Does not return the object.
 
 #### Request Syntax
 
 __HTTP__
 
 ```json
-http GET https://<data-api>/<stage>/<namespace>/<id>
+http HEAD https://<data-api>/<stage>/<namespace>/<id>
 
 ```
 
 __Python Client__
 
 ```python
-response = client.<>(
-	<>: str
+response = client.(
+	data_type: str, 
+	item_id: str
 )
 ```
 
 #### Parameters
 
+* `data_type`: The Namespace or Data Type
+* `item_id`: The Item ID to validate
+
 #### Return Type
+
+HTTP Response Code
 
 #### Returns
 
+HTTP Response code indicating 200 for object exists, 404 for not exists.
+
 ##### Response Syntax
-
-```json
-{
-
-}
-```
 
 ##### Response Structure
