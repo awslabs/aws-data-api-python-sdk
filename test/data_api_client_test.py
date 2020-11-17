@@ -161,7 +161,7 @@ class DataAPIClientTest(unittest.TestCase):
             self.client.put_schema(data_type=data_type, schema_type=schema_type, json_schema=original_schema)
 
     def test_find_item(self):
-        results = self.client.find(data_type=data_type, resource_attributes={"attr3": self._uuid})
+        results = self.client.find(data_type=data_type, resource_attributes={"attr3": _uuid})
         self.assertIsNotNone(results)
         self.assertIsNotNone(results.get("Items"))
         self.assertEqual(len(results.get("Items")), 1)
@@ -177,7 +177,7 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertEqual(results.get("Items")[0].get("attr1"), _id)
 
         # find with limit
-        results = self.client.find(data_type=data_type, resource_attributes={"attr3": self._uuid}, limit=n)
+        results = self.client.find(data_type=data_type, resource_attributes={"attr3": _uuid}, limit=n)
         self.assertIsNotNone(results)
         self.assertEqual(len(results.get("Items")), 1)
         self.assertEqual(results.get("Items")[0].get("id"), _item_id)
