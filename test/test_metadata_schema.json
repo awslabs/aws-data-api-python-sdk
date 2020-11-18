@@ -1,26 +1,18 @@
 {
-  "$id": "https://example.com/person.schema.json",
+  "$id": "https://example.com/myitem-metadata.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": true,
   "properties": {
-    "attr1": {
+    "meta1": {
       "description": "Attribute 1",
       "type": "string"
     },
-    "attr2": {
+    "meta2": {
       "description": "Attribute 2",
       "type": "string"
     },
-    "attr3": {
+    "meta3": {
       "description": "Attribute 3",
-      "type": "string"
-    },
-    "attr4": {
-      "description": "Attribute 4",
-      "type": "string"
-    },
-    "attr5": {
-      "description": "Attribute 5",
       "type": "string"
     },
     "id": {
@@ -29,10 +21,9 @@
     }
   },
   "required": [
-    "id",
-    "attr1",
-    "attr2"
+    "meta1",
+    "meta2"
   ],
-  "title": "MyItem",
+  "title": "MyItem-Metadata",
   "type": "object"
 }

@@ -1,0 +1,37 @@
+{
+  "$id": "https://example.com/myitem-resource.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": true,
+  "properties": {
+    "attr1": {
+      "description": "Attribute 1",
+      "type": "string"
+    },
+    "attr2": {
+      "description": "Attribute 2",
+      "type": "string"
+    },
+    "attr3": {
+      "description": "Attribute 3",
+      "type": "string"
+    },
+    "attr4": {
+      "description": "Attribute 4",
+      "type": "string"
+    },
+    "attr5": {
+      "description": "Attribute 5",
+      "type": "string"
+    },
+    "id": {
+      "description": "Primary Identifier",
+      "type": "string"
+    }
+  },
+  "required": [
+    "attr1",
+    "attr2"
+  ],
+  "title": "MyItem-Resource",
+  "type": "object"
+}

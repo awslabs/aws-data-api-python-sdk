@@ -378,13 +378,13 @@ class DataAPIClient:
                 item[iv] = item_version
 
         if strict_schema is not None and isinstance(strict_schema, bool) and strict_schema is True:
-            item.pop("StrictSchemaValidation")
             item["StrictSchemaValidation"] = 'True'
 
         # write the item structure
         return self._item_write(data_type=data_type, item_id=item_id, body=item)
 
-    def put_resource(self, data_type: str, item_id: str, resource: dict, item_version: int = None):
+    def put_resource(self, data_type: str, item_id: str, resource: dict, item_version: int = None,
+                     strict_schema: bool = False):
         """Create or update a Resource in the Namespace.
         """
         if params.RESOURCE in resource:
@@ -392,10 +392,11 @@ class DataAPIClient:
         else:
             _resource = {params.RESOURCE: resource}
 
-        return self._put_item(data_type=data_type, item_id=item_id, item=_resource, item_version=item_version).get(
+        return self._put_item(data_type=data_type, item_id=item_id, item=_resource, item_version=item_version,
+                              strict_schema=strict_schema).get(
             params.RESOURCE)
 
-    def put_metadata(self, data_type: str, item_id: str, meta: dict):
+    def put_metadata(self, data_type: str, item_id: str, meta: dict, strict_schema: bool = False):
         """Create or update Metadata for a Resource in the Namespace
         """
         if params.METADATA in meta:
@@ -404,7 +405,8 @@ class DataAPIClient:
             _meta = {params.METADATA: meta}
 
         # remove the primary key from the item
-        return self._put_item(data_type=data_type, item_id=item_id, item=_meta).get(params.METADATA)
+        return self._put_item(data_type=data_type, item_id=item_id, item=_meta,
+                              strict_schema=strict_schema).get(params.METADATA)
 
     def put_references(self, data_type: str, item_id: str, references: dict):
         """Create or update References for a Resource in the Namespace.

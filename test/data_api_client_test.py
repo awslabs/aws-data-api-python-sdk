@@ -79,9 +79,15 @@ class DataAPIClientTest(unittest.TestCase):
         except ResourceNotFoundException:
             pass
 
+        try:
+            cls.client.delete_schema(data_type=data_type, schema_type=params.RESOURCE)
+            cls.client.delete_schema(data_type=data_type, schema_type=params.METADATA)
+        except ResourceNotFoundException:
+            pass
+
     def _create_item(self, data_type: str, item_id: str):
-        response = self.client.put_resource(data_type=data_type, item_id=item_id, resource=_resource)
-        response = self.client.put_metadata(data_type=data_type, item_id=item_id, meta=_metadata)
+        response = self.client.put_resource(data_type=data_type, item_id=item_id, resource=_resource, strict_schema=True)
+        response = self.client.put_metadata(data_type=data_type, item_id=item_id, meta=_metadata, strict_schema=True)
 
     def setUp(self):
         # create a test
@@ -131,19 +137,21 @@ class DataAPIClientTest(unittest.TestCase):
         meta = self.client.get_metadata(data_type=data_type, item_id=_item_id)
         self.assertIsNone(meta)
 
-    def test_schema(self):
-        schema_type = "Resource"
+    def _put_schema(self, schema_type):
+        with open(f"test_{schema_type.lower()}_schema.json", 'r') as f:
+            json_schema = json.load(f)
+
+        # test that I can create the schema
+        self.assertTrue(self.client.put_schema(data_type=data_type, schema_type=schema_type, json_schema=json_schema))
+
+    def _test_schema_type(self, schema_type):
         json_schema = None
         try:
             original_schema = self.client.get_schema(data_type=data_type, schema_type=schema_type)
         except:
             pass
 
-        with open("test_item_schema.json", 'r') as f:
-            json_schema = json.load(f)
-
-        # test that I can create the schema
-        self.assertTrue(self.client.put_schema(data_type=data_type, schema_type=schema_type, json_schema=json_schema))
+        self._put_schema(schema_type)
 
         # test that I can get the schema
         fetch_schema = self.client.get_schema(data_type=data_type, schema_type=schema_type)
@@ -159,6 +167,10 @@ class DataAPIClientTest(unittest.TestCase):
 
         if original_schema is not None:
             self.client.put_schema(data_type=data_type, schema_type=schema_type, json_schema=original_schema)
+
+    def test_schemas(self):
+        self._test_schema_type(params.RESOURCE)
+        self._test_schema_type(params.METADATA)
 
     def test_find_item(self):
         results = self.client.find(data_type=data_type, resource_attributes={"attr3": _uuid})
@@ -281,6 +293,12 @@ class DataAPIClientTest(unittest.TestCase):
         item = self.client.get_resource(data_type=data_type, item_id=_item_id)
         self.assertEqual(item.get("Item").get("Resource").get(key), val)
 
+        # test that I can fail an update that doesn't match the schema
+        self._put_schema(params.RESOURCE)
+        del res["attr1"]
+        with self.assertRaises(InvalidArgumentsException):
+            response = self.client.put_resource(data_type=data_type, item_id=_item_id, resource=res, strict_schema=True)
+
     def test_update_metadata(self):
         meta = self.client.get_metadata(data_type=data_type, item_id=_item_id)
 
@@ -293,6 +311,12 @@ class DataAPIClientTest(unittest.TestCase):
 
         meta = self.client.get_metadata(data_type=data_type, item_id=_item_id)
         self.assertEqual(meta.get(key), val)
+
+        # test that I can fail an update that doesn't match the schema
+        self._put_schema(params.METADATA)
+        del meta["meta1"]
+        with self.assertRaises(InvalidArgumentsException):
+            response = self.client.put_metadata(data_type=data_type, item_id=_item_id, meta=meta, strict_schema=True)
 
     def test_lineage_search(self):
         id = None
