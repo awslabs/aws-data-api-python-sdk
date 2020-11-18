@@ -60,6 +60,7 @@ class DataAPIClientTest(unittest.TestCase):
                               session_token=session_token,
                               force_refresh=False)
 
+        global _log_level
         set_logging = os.getenv('LOG_LEVEL')
         if set_logging is not None:
             _log_level = set_logging
@@ -79,26 +80,25 @@ class DataAPIClientTest(unittest.TestCase):
         except ResourceNotFoundException:
             pass
 
-        try:
-            cls.client.delete_schema(data_type=data_type, schema_type=params.RESOURCE)
-            cls.client.delete_schema(data_type=data_type, schema_type=params.METADATA)
-        except ResourceNotFoundException:
-            pass
-
-    def _create_item(self, data_type: str, item_id: str):
-        response = self.client.put_resource(data_type=data_type, item_id=item_id, resource=_resource, strict_schema=True)
-        response = self.client.put_metadata(data_type=data_type, item_id=item_id, meta=_metadata, strict_schema=True)
+    def _create_base_item(self, data_type: str, item_id: str):
+        self.client.put_resource(data_type=data_type, item_id=item_id, resource=_resource,
+                                 strict_schema=True)
+        self.client.put_metadata(data_type=data_type, item_id=item_id, meta=_metadata, strict_schema=True)
 
     def setUp(self):
-        # create a test
         try:
             self.client.remove_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
         except ResourceNotFoundException:
             pass
-        self._create_item(data_type=data_type, item_id=_item_id)
 
-        meta = {"Metadata": {"CostCenter": "1234", "Owner": "Ian Meyers"}}
-        response = self.client.put_metadata(data_type=data_type, item_id=_item_id, meta=meta)
+        self._create_base_item(data_type=data_type, item_id=_item_id)
+
+    def tearDown(self):
+        try:
+            self.client.delete_schema(data_type=data_type, schema_type=params.RESOURCE)
+            self.client.delete_schema(data_type=data_type, schema_type=params.METADATA)
+        except ResourceNotFoundException:
+            pass
 
     def test_namespaces(self):
         namespaces = self.client.get_namespaces()
@@ -144,29 +144,22 @@ class DataAPIClientTest(unittest.TestCase):
         # test that I can create the schema
         self.assertTrue(self.client.put_schema(data_type=data_type, schema_type=schema_type, json_schema=json_schema))
 
-    def _test_schema_type(self, schema_type):
-        json_schema = None
-        try:
-            original_schema = self.client.get_schema(data_type=data_type, schema_type=schema_type)
-        except:
-            pass
+        return json_schema
 
-        self._put_schema(schema_type)
+    def _test_schema_type(self, schema_type):
+        put_schema = self._put_schema(schema_type)
 
         # test that I can get the schema
         fetch_schema = self.client.get_schema(data_type=data_type, schema_type=schema_type)
         self.assertIsNotNone(fetch_schema)
 
         # assert that the schemas match
-        self.assertEqual(json_schema, fetch_schema)
+        self.assertEqual(put_schema, fetch_schema)
 
         # test that I can delete the schema
         deletion = self.client.delete_schema(data_type=data_type, schema_type=schema_type)
         self.assertEqual(True, deletion.get("DataModified", False))
         self.assertIsNone(self.client.get_schema(data_type=data_type, schema_type=schema_type))
-
-        if original_schema is not None:
-            self.client.put_schema(data_type=data_type, schema_type=schema_type, json_schema=original_schema)
 
     def test_schemas(self):
         self._test_schema_type(params.RESOURCE)
@@ -235,7 +228,7 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertIsNone(item.get("Item").get("Metadata"))
 
     def test_get_resource_whitelist_attribute(self):
-        self._create_item(data_type=data_type, item_id=_master_id)
+        self._create_base_item(data_type=data_type, item_id=_master_id)
 
         # get the item with an attribute whitelist
         item = self.client.get_resource(data_type=data_type, item_id=_item_id, suppress_metadata_fetch=True,
@@ -248,7 +241,7 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertIsNone(item.get("attr3"), msg)
 
     def test_get_resource_blacklist_attribute(self):
-        self._create_item(data_type=data_type, item_id=_master_id)
+        self._create_base_item(data_type=data_type, item_id=_master_id)
         # get the item with an attribute blacklist
         item = self.client.get_resource(data_type=data_type, item_id=_item_id, suppress_metadata_fetch=True,
                                         not_attributes=["attr1"]).get(
@@ -258,7 +251,7 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertIsNone(item.get("attr1"), msg)
 
     def test_get_resource_include_master(self):
-        self._create_item(data_type=data_type, item_id=_master_id)
+        self._create_base_item(data_type=data_type, item_id=_master_id)
         self.client.set_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
         item = self.client.get_resource(data_type=data_type, item_id=_item_id,
                                         item_master_option=params.ITEM_MASTER_INCLUDE)
@@ -266,7 +259,7 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertIsNotNone(item.get("Item"))
 
     def test_get_resource_prefer_master(self):
-        self._create_item(data_type=data_type, item_id=_master_id)
+        self._create_base_item(data_type=data_type, item_id=_master_id)
         self.client.set_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
         item = self.client.get_resource(data_type=data_type, item_id=_item_id,
                                         item_master_option=params.ITEM_MASTER_PREFER)
@@ -274,7 +267,7 @@ class DataAPIClientTest(unittest.TestCase):
         self.assertIsNone(item.get("Item"))
 
     def test_remove_master(self):
-        self._create_item(data_type=data_type, item_id=_master_id)
+        self._create_base_item(data_type=data_type, item_id=_master_id)
         self.client.set_item_master(data_type=data_type, item_id=_item_id, item_master_id=_master_id)
 
         with self.assertRaises(InvalidArgumentsException):
@@ -323,6 +316,7 @@ class DataAPIClientTest(unittest.TestCase):
         direction = None
         max_depth = None
         # self.assertTrue(self.client.lineage_search(id, direction, max_depth))
+        pass
 
     def test_list_items(self):
         c = 10
