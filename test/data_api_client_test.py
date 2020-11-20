@@ -58,7 +58,7 @@ class DataAPIClientTest(unittest.TestCase):
                               access_key=access_key,
                               secret_key=secret_key,
                               session_token=session_token,
-                              force_refresh=False)
+                              force_refresh=True)
 
         global _log_level
         set_logging = os.getenv('LOG_LEVEL')
