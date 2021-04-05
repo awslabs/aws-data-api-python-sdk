@@ -6,13 +6,15 @@ AWS Data API's use URL Paths and HTTP Verbs to implement underlying actions agai
 
 ## Installation
 
-The AWS Data API Python client is distributed through pypi, and can be installed with:
+The AWS Data API Python client is distributed only through Github due to an issue with Pypi name squatting. This project is in no way affiliated with the Pypi project `aws-data-api-python-sdk`. To install:
 
 ```
-pip install aws-data-api-python-sdk --user
+git clone aws-data-api-python-sdk
+cd aws-data-api-python-sdk
+pip install -r requirements.txt
 ```
 
-which will install:
+this will install:
 
 * `boto3`: The AWS Python SDK which is used for automating credential management.
 * `requests-aws4auth`: Helper module that performs sigv4 signing of the requests you make to AWS Data API's
